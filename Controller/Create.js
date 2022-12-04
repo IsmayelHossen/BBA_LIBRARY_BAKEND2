@@ -120,7 +120,14 @@ Create_Route.post(
 
       //.toFile(path.resolve(req.file.destination, "resized", image));
       .toFile(`./public/uploadDoc/${imageName}`);
-    fs.unlinkSync(req.file.path);
+
+    await fs.unlink(req.file.path, () => {
+      // res.status(200).json({
+      //   success: true,
+      //   message: "Deleted data suceessfully",
+      // });
+    });
+    // fs.unlink(req.file.path);
 
     const {
       entry_date,
