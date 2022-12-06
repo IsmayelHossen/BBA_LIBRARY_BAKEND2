@@ -150,12 +150,16 @@ Update_Route.put(
 
     const PAGE_NUMBER = Number(req.body.PAGE_NUMBER);
     const COST =
-      req.body.COST === "null" || req.body.COST === "NAN"
-        ? ""
+      req.body.COST == "NaN"
+        ? 0
+        : req.body.COST == "null"
+        ? 0
         : Number(req.body.COST);
     const CALL_NO =
-      req.body.CALL_NO === "null" || req.body.CALL_NO === "NAN"
-        ? ""
+      req.body.CALL_NO == "NaN"
+        ? 0
+        : req.body.CALL_NO == "null"
+        ? 0
         : Number(req.body.CALL_NO);
     // const imagename = req.files[0].filename;
     const query = `UPDATE books SET CALL_NO='${CALL_NO}',COST='${COST}', CATEGORY_ID='${CATEGORY_ID}',PUBLISHER_ID='${PUBLISHER_ID}',NUMBER_OF_COPY='${NUMBER_OF_COPY}'
@@ -204,20 +208,24 @@ Update_Route.put("/bookUpdate/:id", async function (req, res) {
   const AVAILABLE_COPY = Number(req.body.AVAILABLE_COPY);
 
   const PAGE_NUMBER = Number(req.body.PAGE_NUMBER);
+
   const COST =
-    req.body.COST === "null" || req.body.COST === "NAN"
-      ? ""
+    req.body.COST == "NaN"
+      ? 0
+      : req.body.COST == "null"
+      ? 0
       : Number(req.body.COST);
   const CALL_NO =
-    req.body.CALL_NO === "null" || req.body.CALL_NO === "NAN"
-      ? ""
+    req.body.CALL_NO == "NaN"
+      ? 0
+      : req.body.CALL_NO == "null"
+      ? 0
       : Number(req.body.CALL_NO);
-
   const query = `UPDATE books SET CALL_NO='${CALL_NO}',COST='${COST}', CATEGORY_ID='${CATEGORY_ID}',PUBLISHER_ID='${PUBLISHER_ID}',NUMBER_OF_COPY='${NUMBER_OF_COPY}',
   AVAILABLE_COPY='${AVAILABLE_COPY}',PAGE_NUMBER='${PAGE_NUMBER}', AUTHOR='${AUTHOR}',DESK_NUMBER='${DESK_NUMBER}',DESK_FLOOR=${desk_floor}
    , book_num=${book_num},title='${TITLE}',VOLUME_EDITION='${VOLUME_EDITION}',REMARK='${REMARK}',SOURCE_DATE='${SOURCE_DATE}',PUBLICATION_DATE='${PUBLICATION_DATE}',entry_date='${ENTRY_DATE}' where id=${id} `;
   const result2 = await DBQuery(query);
-  
+
   res.status(200).json({
     success: true,
   });

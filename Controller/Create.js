@@ -63,15 +63,20 @@ Create_Route.post("/book_add", async function (req, res, next) {
   const book_copy = Number(req.body.book_copy);
 
   const page_number = Number(req.body.page_number);
+  console.log(req.body);
   // const cost = req.body.cost === "NaN" ? "" : Number(req.body.cost);
   // const call_no = req.body.call_no === "NaN" ? "" : Number(req.body.call_no);
   const cost =
-    req.body.cost === "null" || req.body.cost === "NAN"
-      ? ""
+    req.body.cost == "NaN"
+      ? 0
+      : req.body.cost == "null"
+      ? 0
       : Number(req.body.cost);
   const call_no =
-    req.body.call_no === "null" || req.body.call_no === "NAN"
-      ? ""
+    req.body.call_no == "NaN"
+      ? 0
+      : req.body.call_no == "null"
+      ? 0
       : Number(req.body.call_no);
   //check book num for unique
   const querycheck = `SELECT*FROM books where book_num=${book_num}`;
@@ -152,15 +157,21 @@ Create_Route.post(
     const page_number = Number(req.body.page_number);
 
     const cost =
-      req.body.cost === "null" || req.body.cost === "NAN"
-        ? ""
+      req.body.cost == "NaN"
+        ? 0
+        : req.body.cost == "null"
+        ? 0
         : Number(req.body.cost);
     const call_no =
-      req.body.call_no === "null" || req.body.call_no === "NAN"
-        ? ""
+      req.body.call_no == "NaN"
+        ? 0
+        : req.body.call_no == "null"
+        ? 0
         : Number(req.body.call_no);
     //check unique book number
-
+    console.log(req.body);
+    console.log("cost", cost);
+    console.log("call_no", call_no);
     const querycheck = `SELECT*FROM books where book_num=${book_num}`;
     const querycheck_result = await DBQuery(querycheck);
 
