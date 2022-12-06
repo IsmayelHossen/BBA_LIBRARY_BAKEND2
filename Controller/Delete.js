@@ -49,7 +49,6 @@ const DBQuery = require("../Database/Query_Builder");
 
 Delete_Route.delete("/publisher/:id", async function (req, res) {
   const id = req.params.id;
-  console.log(id);
   const query = `delete from publishers where id='${id}'`;
   const result1 = await DBQuery(query);
   res.status(200).json({
@@ -60,7 +59,6 @@ Delete_Route.delete("/publisher/:id", async function (req, res) {
 
 Delete_Route.delete("/category/:id", async function (req, res) {
   const id = req.params.id;
-  console.log(id);
   const query = `delete from categories where id='${id}'`;
   const result1 = await DBQuery(query);
   res.status(200).json({
@@ -70,7 +68,6 @@ Delete_Route.delete("/category/:id", async function (req, res) {
 });
 Delete_Route.delete("/book/:book_num/:imagename", async function (req, res) {
   const book_num = req.params.book_num;
-  console.log(book_num);
   const query = `delete from books where book_num='${book_num}'`;
   const result1 = await DBQuery(query);
   if (result1 == 2292) {

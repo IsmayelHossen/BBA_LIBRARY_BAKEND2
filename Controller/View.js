@@ -9,7 +9,6 @@ const DBQuery = require("../Database/Query_Builder");
 View_Route.get("/getpublisher", async function (req, res) {
   const query = `SELECT*from publishers`;
   const result = await DBQuery(query);
-  console.log(result);
   res.status(200).json({
     success: true,
     data: result,
@@ -144,10 +143,8 @@ View_Route.get("/gettotalbookUsed/:emp_id", async function (req, res) {
 View_Route.get(
   "/getemployee_previous_bookRecord/:employee_id",
   async function (req, res) {
-    console.log(req.params.employee_id);
     const query = `SELECT*FROM bookrent where emp_id=${req.params.employee_id} `;
     const result = await DBQuery(query);
-    console.log(result);
     res.status(200).json({
       success: true,
       data: result,
@@ -158,10 +155,9 @@ View_Route.get(
 View_Route.get(
   "/gettotalbookAccepptPending/:employee_id",
   async function (req, res) {
-    console.log(req.params.employee_id);
     const query = `SELECT*FROM sendrequest where emp_id=${req.params.employee_id} `;
     const result = await DBQuery(query);
-    console.log(result);
+
     res.status(200).json({
       success: true,
       data: result,
@@ -170,10 +166,9 @@ View_Route.get(
 );
 //admin  getPendingAcceptDeclinedData
 View_Route.get("/getPendingAcceptDeclinedData", async function (req, res) {
-  console.log(req.params.employee_id);
   const query = `SELECT*FROM sendrequest `;
   const result = await DBQuery(query);
-  console.log(result);
+
   res.status(200).json({
     success: true,
     data: result,
@@ -181,10 +176,9 @@ View_Route.get("/getPendingAcceptDeclinedData", async function (req, res) {
 });
 //gettotalbookissudForEmp
 View_Route.get("/gettotalbookissudForEmp", async function (req, res) {
-  console.log(req.params.employee_id);
   const query = `SELECT*FROM bookrent `;
   const result = await DBQuery(query);
-  console.log(result);
+
   res.status(200).json({
     success: true,
     data: result,
@@ -195,7 +189,6 @@ View_Route.get("/gettotalbookissudForEmp", async function (req, res) {
 View_Route.get("/getAdditionalTimerequest", async function (req, res) {
   const query = `SELECT distinct bookrent_id FROM bookrenew`;
   const result = await DBQuery(query);
-  console.log(result);
   res.status(200).json({
     success: true,
     data: result,
@@ -211,7 +204,7 @@ View_Route.get("/getAdditionalTimeRequestAll", async function (req, res) {
   join bookrenew on bookrenew.bookrent_id=bookrent.id 
   `;
   const result = await DBQuery(query);
-  console.log(result);
+
   res.status(200).json({
     success: true,
     data: result,
@@ -230,7 +223,7 @@ View_Route.get(
   join bookrenew on bookrenew.bookrent_id=bookrent.id where bookrent.id=${req.params.bookrent_id}
   `;
     const result = await DBQuery(query);
-    console.log(result);
+
     res.status(200).json({
       success: true,
       data: result,
@@ -239,14 +232,13 @@ View_Route.get(
 );
 // getdataToPrint booklist
 View_Route.get("/getdataToPrint/:filterType", async function (req, res) {
-  console.log(req.params.filterType);
   if (req.params.filterType == "all") {
     const query = `SELECT categories.category_name,publishers.publisher_name,books.* from books
   join categories on categories.id=books.category_id
   join publishers on publishers.id=books.publisher_id
   `;
     const result = await DBQuery(query);
-    console.log(result);
+
     res.status(200).json({
       success: true,
       data: result,
@@ -257,7 +249,7 @@ View_Route.get("/getdataToPrint/:filterType", async function (req, res) {
   join publishers on publishers.id=books.publisher_id where lower(categories.CATEGORY_NAME)='${req.params.filterType}' or lower(publishers.publisher_name)='${req.params.filterType}'
     `;
   const result = await DBQuery(query);
-  console.log(result);
+
   res.status(200).json({
     success: true,
     data: result,
@@ -285,7 +277,6 @@ View_Route.get(
 View_Route.get(
   "/getBookRequestAcceptDataToPrint/:report_type",
   async function (req, res) {
-    console.log("kjkk");
     const query = `SELECT sendrequest.*,categories.category_name,publishers.publisher_name,books.*,employees.* from sendrequest 
   join books on  sendrequest.book_id=books.book_num
   join categories on categories.id=books.category_id
@@ -303,7 +294,6 @@ View_Route.get(
 View_Route.get(
   "/getBookRentStatusDataToPrint/:report_type",
   async function (req, res) {
-    console.log("kjkk");
     const query = `SELECT books.*,categories.category_name,publishers.publisher_name,employees.*,bookrent.* from bookrent
   join books on  bookrent.book_id=books.book_num
   join categories on categories.id=books.category_id
@@ -322,7 +312,6 @@ View_Route.get(
 View_Route.get(
   "/getBookRenewStatusDataToPrint/:report_type",
   async function (req, res) {
-    console.log("kjkk");
     const query = `SELECT books.*,categories.category_name,bookrenew.*,publishers.publisher_name,employees.*,bookrent.* from bookrent
   join books on  bookrent.book_id=books.book_num
   join categories on categories.id=books.category_id
@@ -347,10 +336,56 @@ View_Route.get("/getbookDataforUpdate/:id", async function (req, res) {
     join publishers on publishers.id=books.publisher_id where lower(books.book_num)='${req.params.id}'
       `;
   const result = await DBQuery(query);
-  console.log(result);
+
   res.status(200).json({
     success: true,
     data: result,
   });
 });
+//getEmployeeData
+View_Route.get("/getEmployeeData", async function (req, res) {
+  const query = `SELECT*from employees
+      `;
+  const result = await DBQuery(query);
+  res.status(200).json({
+    success: true,
+    data: result,
+  });
+});
+//getBookIndividualUserLibraryDataToPrint
+View_Route.get(
+  "/getBookIndividualUserLibraryDataToPrint/:type/:emp_id",
+  async function (req, res) {
+    const { type, emp_id } = req.params;
+    if (type == 1) {
+      const query = `SELECT sendrequest.*,categories.category_name,publishers.publisher_name,books.*,employees.* from sendrequest 
+  join books on  sendrequest.book_id=books.book_num
+  join categories on categories.id=books.category_id
+  join publishers on publishers.id=books.publisher_id
+  join employees on sendrequest.emp_id=employees.id where sendrequest.status=0 and employees.id=${emp_id}
+  `;
+      const result = await DBQuery(query);
+
+      res.status(200).json({
+        success: true,
+        data: result,
+      });
+    } else if (type == 2) {
+      const query = `SELECT sendrequest.*,categories.category_name,publishers.publisher_name,books.*,employees.* from sendrequest 
+  join books on  sendrequest.book_id=books.book_num
+  join categories on categories.id=books.category_id
+  join publishers on publishers.id=books.publisher_id
+  join employees on sendrequest.emp_id=employees.id where sendrequest.status=1 and employees.id=${emp_id}
+  `;
+      const result = await DBQuery(query);
+      res.status(200).json({
+        success: true,
+        data: result,
+      });
+    }
+    //  else if(type==3){
+
+    //  }
+  }
+);
 module.exports = View_Route;

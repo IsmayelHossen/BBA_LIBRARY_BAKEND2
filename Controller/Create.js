@@ -29,7 +29,6 @@ var upload = multer({ storage: storage });
 // const uploadFile_books = upload.single("image");
 
 Create_Route.post("/publisher", async function (req, res, next) {
-  console.log(req.body);
   const query = `INSERT INTO  publishers(publisher_name) VALUES('${req.body.publisher_name}')`;
   const type = "insert";
   const result2 = await DBQuery(query, type);
@@ -39,7 +38,6 @@ Create_Route.post("/publisher", async function (req, res, next) {
 });
 
 Create_Route.post("/category", async function (req, res, next) {
-  console.log(req.body);
   const query = `INSERT INTO  categories(category_name) VALUES('${req.body.category_name}')`;
   const type = "insert";
   const result2 = await DBQuery(query, type);
@@ -48,7 +46,6 @@ Create_Route.post("/category", async function (req, res, next) {
   });
 });
 Create_Route.post("/book_add", async function (req, res, next) {
-  console.log(req.body);
   const {
     entry_date,
     title,
@@ -64,18 +61,26 @@ Create_Route.post("/book_add", async function (req, res, next) {
   const category_name = Number(req.body.category_name);
   const publisher_name = Number(req.body.publisher_name);
   const book_copy = Number(req.body.book_copy);
-  const call_no = req.body.call_no === "NaN" ? "" : Number(req.body.call_no);
+
   const page_number = Number(req.body.page_number);
-  const cost = req.body.cost === "NaN" ? "" : Number(req.body.cost);
+  // const cost = req.body.cost === "NaN" ? "" : Number(req.body.cost);
+  // const call_no = req.body.call_no === "NaN" ? "" : Number(req.body.call_no);
+  const cost =
+    req.body.cost === "null" || req.body.cost === "NAN"
+      ? ""
+      : Number(req.body.cost);
+  const call_no =
+    req.body.call_no === "null" || req.body.call_no === "NAN"
+      ? ""
+      : Number(req.body.call_no);
   //check book num for unique
   const querycheck = `SELECT*FROM books where book_num=${book_num}`;
   const querycheck_result = await DBQuery(querycheck);
-  console.log(querycheck_result[0].BOOK_NUM);
+
   if (
     querycheck_result.length > 0 &&
     querycheck_result[0].BOOK_NUM == book_num
   ) {
-    console.log("error");
     res.status(200).json({
       success: "NotUnique",
       bookNum: book_num,
@@ -107,7 +112,6 @@ Create_Route.post(
     //     return res.status(200).send({ status: 400, message: err.message });
     //   }
     const { filename: image } = req.file;
-    console.log(req.file);
     const imageName =
       req.file.fieldname +
       "-" +
@@ -139,19 +143,27 @@ Create_Route.post(
       desk_number,
       remark,
     } = req.body;
-    console.log(req.body);
     const desk_floor = Number(req.body.desk_floor);
     const book_num = Number(req.body.book_num);
     const category_name = Number(req.body.category_name);
     const publisher_name = Number(req.body.publisher_name);
     const book_copy = Number(req.body.book_copy);
-    const call_no = req.body.call_no === "NaN" ? "" : Number(req.body.call_no);
+
     const page_number = Number(req.body.page_number);
-    const cost = req.body.cost === "NaN" ? "" : Number(req.body.cost);
+
+    const cost =
+      req.body.cost === "null" || req.body.cost === "NAN"
+        ? ""
+        : Number(req.body.cost);
+    const call_no =
+      req.body.call_no === "null" || req.body.call_no === "NAN"
+        ? ""
+        : Number(req.body.call_no);
     //check unique book number
+
     const querycheck = `SELECT*FROM books where book_num=${book_num}`;
     const querycheck_result = await DBQuery(querycheck);
-    console.log(querycheck_result);
+
     if (
       querycheck_result.length > 0 &&
       querycheck_result[0].BOOK_NUM == book_num
@@ -183,11 +195,10 @@ Create_Route.post("/requestSend", async function (req, res, next) {
   const result = await DBQuery(checkQuery);
   const alreadyThisBookOnServce_Query = `SELECT*FROM bookrent where status='Service on going' AND emp_id=${emplyee_id} AND book_id=${bookNum}`;
   const Existresult = await DBQuery(alreadyThisBookOnServce_Query);
-  console.log(result.length);
   const maxQuery = "SELECT*FROM booklimit";
   const Maxresult = await DBQuery(maxQuery);
-  console.log(Maxresult);
-  if (result.length + 1 > Maxresult[0].MAX_BOOK_LIMIT) {
+
+  if (result.length > 0 && result.length + 1 > Maxresult[0].MAX_BOOK_LIMIT) {
     res.status(200).json({
       success1: "NotEligible",
     });
@@ -206,18 +217,16 @@ Create_Route.post("/requestSend", async function (req, res, next) {
 });
 //AcceptbookIssue
 Create_Route.post("/AcceptbookIssue", async function (req, res, next) {
-  // console.log(req.body);
   const { book_id, emp_id, issue_date, realse_date, request_date } = req.body;
   const query = `INSERT INTO  bookrent(BOOK_ID,EMP_ID,ISSUE_DATE,RELEASE_DATE,STATUS) VALUES('${book_id}','${emp_id}','${issue_date}','${realse_date}','Service on going')`;
   const type = "insert";
   const result2 = await DBQuery(query, type);
-  console.log(result2, "mnmn");
   if (result2) {
     const query23 = `SELECT*FROM books where book_num=${book_id}`;
     const result32 = await DBQuery(query23);
     const availabl = result32[0].AVAILABLE_COPY;
     const numberofcopy = result32[0].NUMBER_OF_COPY;
-    console.log(numberofcopy, availabl);
+
     if (availabl > 0 && numberofcopy >= availabl) {
       const new_available = availabl - 1;
       const query42 = `UPDATE books set AVAILABLE_COPY=${new_available} WHERE book_num=${book_id}`;
@@ -236,7 +245,6 @@ Create_Route.post("/AcceptbookIssue", async function (req, res, next) {
 });
 
 Create_Route.post("/additionalTimeRequest", async function (req, res, next) {
-  console.log(req.body);
   const { id, newrelease_date, prevous_release_date, request_date } = req.body;
   const query = `INSERT INTO bookrenew(bookrent_id,request_date,pre_release_date,new_release_date,status) VALUES('${id}','${request_date}','${prevous_release_date}','${newrelease_date}','${0}')`;
   const type = "insert";
