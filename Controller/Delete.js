@@ -66,9 +66,9 @@ Delete_Route.delete("/category/:id", async function (req, res) {
     message: "Deleted data suceessfully",
   });
 });
-Delete_Route.delete("/book/:book_num/:imagename", async function (req, res) {
-  const book_num = req.params.book_num;
-  const query = `delete from books where book_num='${book_num}'`;
+Delete_Route.delete("/book/:id/:imagename", async function (req, res) {
+  const id = req.params.id;
+  const query = `delete from books where id='${id}'`;
   const result1 = await DBQuery(query);
   if (result1 == 2292) {
     res.status(200).json({
