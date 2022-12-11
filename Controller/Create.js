@@ -201,7 +201,8 @@ Create_Route.post(
   }
 );
 Create_Route.post("/requestSend", async function (req, res, next) {
-  const { bookNum, emplyee_id, request_date } = req.body;
+  const { bookNum, emplyee_id, request_date, otp } = req.body;
+  console.log(req.body)
   const checkQuery = `SELECT*FROM bookrent where status='Service on going' AND emp_id=${emplyee_id}`;
   const result = await DBQuery(checkQuery);
   const alreadyThisBookOnServce_Query = `SELECT*FROM bookrent where status='Service on going' AND emp_id=${emplyee_id} AND book_id=${bookNum}`;
@@ -218,7 +219,7 @@ Create_Route.post("/requestSend", async function (req, res, next) {
       success2: "OnGoningAlready",
     });
   } else {
-    const query = `INSERT INTO  sendrequest(emp_id,book_id,status,request_date) VALUES('${emplyee_id}','${bookNum}',0,'${request_date}')`;
+    const query = `INSERT INTO  sendrequest(emp_id,book_id,status,request_date,otp) VALUES('${emplyee_id}','${bookNum}',0,'${request_date}','${otp}')`;
     const type = "insert";
     const result2 = await DBQuery(query, type);
     res.status(200).json({

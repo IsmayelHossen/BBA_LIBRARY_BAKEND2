@@ -26,7 +26,7 @@ View_Route.get("/getcategory", async function (req, res) {
 View_Route.get("/getbooks", async function (req, res) {
   const query = `SELECT categories.category_name,publishers.publisher_name,books.* from books
   join categories on categories.id=books.category_id
-  join publishers on publishers.id=books.publisher_id
+  join publishers on publishers.id=books.publisher_id order by book_num asc
   `;
   const result = await DBQuery(query);
   res.status(200).json({
@@ -352,7 +352,7 @@ View_Route.get("/getEmployeeData", async function (req, res) {
     data: result,
   });
 });
-//getBookIndividualUserLibraryDataToPrint
+//getBookIndividualUserLibraryDataToPrint(pending,accept)
 View_Route.get(
   "/getBookIndividualUserLibraryDataToPrint/:type/:emp_id",
   async function (req, res) {
@@ -388,4 +388,46 @@ View_Route.get(
     //  }
   }
 );
+// getBookIndividualUserRentDataToPrint
+View_Route.get(
+  "/getBookIndividualUserRentDataToPrint/:type/:emp_id",
+  async function (req, res) {
+    const { type, emp_id } = req.params;
+
+    const query = `SELECT bookrent.*,categories.category_name,publishers.publisher_name,books.*,employees.* from sendrequest 
+  join books on  bookrent.book_id=books.book_num
+  join categories on categories.id=books.category_id
+  join publishers on publishers.id=books.publisher_id
+  join employees on sendrequest.emp_id=employees.id where employees.id=${emp_id}
+  `;
+    const result = await DBQuery(query);
+
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  }
+);
+//getBookIndividualUserRenewDataToPrint
+View_Route.get(
+  "/getBookIndividualUserRenewDataToPrint/:type/:emp_id",
+  async function (req, res) {
+    const { type, emp_id } = req.params;
+
+    const query = `SELECT books.*,categories.category_name,bookrenew.*,publishers.publisher_name,employees.*,bookrent.* from bookrent
+  join books on  bookrent.book_id=books.book_num
+  join categories on categories.id=books.category_id
+  join publishers on publishers.id=books.publisher_id
+  join employees on bookrent.emp_id=employees.id
+  join bookrenew on bookrenew.bookrent_id=bookrent.id where employees.id=${emp_id}
+  `;
+    const result = await DBQuery(query);
+
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  }
+);
+
 module.exports = View_Route;
