@@ -19,6 +19,11 @@ app.options("*", cors());
 app.use(express.static("public"));
 app.use(routes);
 
+// {
+//   origin: "http://localhost:3000/library",
+//   credentials: true,
+// }
+
 app.use("/library/search/", Search_Route);
 app.use("/library/view/", View_Route);
 app.use("/library/create/", Create_Route);

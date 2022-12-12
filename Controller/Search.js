@@ -65,7 +65,7 @@ Search_Route.get(
   join books on  sendrequest.book_id=books.book_num
   join categories on categories.id=books.category_id
   join publishers on publishers.id=books.publisher_id
-  join employees on sendrequest.emp_id=employees.id where (lower(categories.category_name) like '%${search}%' OR books.book_num like '%${search}%' OR lower(publishers.publisher_name) like '%${search}%' OR lower(books.title) like '%${search}%' OR lower(books.author) like '%${search}%' OR lower(books.author) like '%${search}%' OR lower(employees.name) like '%${search}%') AND sendrequest.status=0
+  join employees on sendrequest.emp_id=employees.id where (lower(categories.category_name) like '%${search}%' OR books.book_num like '%${search}%' OR lower(publishers.publisher_name) like '%${search}%' OR lower(books.title) like '%${search}%' OR lower(books.author) like '%${search}%' OR lower(books.author) like '%${search}%' OR lower(employees.name) like '%${search}%' OR sendrequest.otp like '%${search}%') AND sendrequest.status=0
   `;
 
     const result = await DBQuery(query);
@@ -81,7 +81,7 @@ Search_Route.get("/BookRequestAccept_admin/:search", async function (req, res) {
   join books on  sendrequest.book_id=books.book_num
   join categories on categories.id=books.category_id
   join publishers on publishers.id=books.publisher_id
-  join employees on sendrequest.emp_id=employees.id where (lower(categories.category_name) like '%${search}%' OR books.book_num like '%${search}%' OR lower(publishers.publisher_name) like '%${search}%' OR lower(books.title) like '%${search}%' OR lower(books.author) like '%${search}%' OR lower(books.author) like '%${search}%' OR lower(employees.name) like '%${search}%') AND sendrequest.status=1
+  join employees on sendrequest.emp_id=employees.id where (lower(categories.category_name) like '%${search}%' OR books.book_num like '%${search}%' OR lower(publishers.publisher_name) like '%${search}%' OR lower(books.title) like '%${search}%' OR lower(books.author) like '%${search}%' OR lower(books.author) like '%${search}%' OR lower(employees.name) like '%${search}%' OR sendrequest.otp like '%${search}%') AND sendrequest.status=1
   `;
 
   const result = await DBQuery(query);

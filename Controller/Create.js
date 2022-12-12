@@ -202,7 +202,7 @@ Create_Route.post(
 );
 Create_Route.post("/requestSend", async function (req, res, next) {
   const { bookNum, emplyee_id, request_date, otp } = req.body;
-  console.log(req.body)
+  console.log(req.body);
   const checkQuery = `SELECT*FROM bookrent where status='Service on going' AND emp_id=${emplyee_id}`;
   const result = await DBQuery(checkQuery);
   const alreadyThisBookOnServce_Query = `SELECT*FROM bookrent where status='Service on going' AND emp_id=${emplyee_id} AND book_id=${bookNum}`;
@@ -210,7 +210,11 @@ Create_Route.post("/requestSend", async function (req, res, next) {
   const maxQuery = "SELECT*FROM booklimit";
   const Maxresult = await DBQuery(maxQuery);
 
-  if (result.length > 0 && result.length + 1 > Maxresult[0].MAX_BOOK_LIMIT) {
+  if (
+    result.length > 0 &&
+    Maxresult.length &&
+    result.length + 1 > Maxresult[0].MAX_BOOK_LIMIT
+  ) {
     res.status(200).json({
       success1: "NotEligible",
     });
