@@ -1,6 +1,5 @@
 const express = require("express");
 const Update_Route = express.Router();
-const mysql = require("mysql");
 const path = require("path");
 const multer = require("multer");
 const fs = require("fs");
@@ -140,6 +139,7 @@ Update_Route.put(
       DESK_NUMBER,
       DESK_FLOOR,
       REMARK,
+      SEQ_NUMBER,
     } = req.body;
     const desk_floor = Number(req.body.DESK_FLOOR);
     const book_num = Number(req.body.BOOK_NUM);
@@ -165,7 +165,7 @@ Update_Route.put(
     const query = `UPDATE books SET CALL_NO='${CALL_NO}',COST='${COST}', CATEGORY_ID='${CATEGORY_ID}',PUBLISHER_ID='${PUBLISHER_ID}',NUMBER_OF_COPY='${NUMBER_OF_COPY}'
   ,PAGE_NUMBER='${PAGE_NUMBER}', AUTHOR='${AUTHOR}',DESK_NUMBER='${DESK_NUMBER}',DESK_FLOOR=${desk_floor}
    , book_num=${book_num},title='${TITLE}',VOLUME_EDITION='${VOLUME_EDITION}',REMARK='${REMARK}',SOURCE_DATE='${SOURCE_DATE}',PUBLICATION_DATE='${PUBLICATION_DATE}',entry_date='${ENTRY_DATE}',
-   image='${imageName}'  where id=${id} `;
+   image='${imageName}',seq_number='${SEQ_NUMBER}'  where id=${id} `;
     const result2 = await DBQuery(query);
     if (delete_image != null) {
       const filepath = `public/uploadDoc/${delete_image}`;
@@ -189,6 +189,7 @@ Update_Route.put("/bookUpdate/:id", async function (req, res) {
   // const id = req.params.id;
 
   const { id } = req.params;
+
   const {
     AUTHOR,
     TITLE,
@@ -197,7 +198,7 @@ Update_Route.put("/bookUpdate/:id", async function (req, res) {
     PUBLICATION_DATE,
     SOURCE_DATE,
     DESK_NUMBER,
-
+    SEQ_NUMBER,
     REMARK,
   } = req.body;
   const desk_floor = Number(req.body.DESK_FLOOR);
@@ -221,9 +222,11 @@ Update_Route.put("/bookUpdate/:id", async function (req, res) {
       : req.body.CALL_NO == "null"
       ? 0
       : Number(req.body.CALL_NO);
+
   const query = `UPDATE books SET CALL_NO='${CALL_NO}',COST='${COST}', CATEGORY_ID='${CATEGORY_ID}',PUBLISHER_ID='${PUBLISHER_ID}',NUMBER_OF_COPY='${NUMBER_OF_COPY}',
-  AVAILABLE_COPY='${AVAILABLE_COPY}',PAGE_NUMBER='${PAGE_NUMBER}', AUTHOR='${AUTHOR}',DESK_NUMBER='${DESK_NUMBER}',DESK_FLOOR=${desk_floor}
-   , book_num=${book_num},title='${TITLE}',VOLUME_EDITION='${VOLUME_EDITION}',REMARK='${REMARK}',SOURCE_DATE='${SOURCE_DATE}',PUBLICATION_DATE='${PUBLICATION_DATE}',entry_date='${ENTRY_DATE}' where id=${id} `;
+  AVAILABLE_COPY='${AVAILABLE_COPY}',PAGE_NUMBER='${PAGE_NUMBER}', AUTHOR='${AUTHOR}',DESK_NUMBER='${DESK_NUMBER}',DESK_FLOOR='${desk_floor}'
+   , book_num='${book_num}',title='${TITLE}',VOLUME_EDITION='${VOLUME_EDITION}',REMARK='${REMARK}',SOURCE_DATE='${SOURCE_DATE}',PUBLICATION_DATE='${PUBLICATION_DATE}',entry_date='${ENTRY_DATE}'
+   ,seq_number='${SEQ_NUMBER}' where id=${id} `;
   const result2 = await DBQuery(query);
 
   res.status(200).json({

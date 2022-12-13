@@ -26,7 +26,7 @@ View_Route.get("/getcategory", async function (req, res) {
 View_Route.get("/getbooks", async function (req, res) {
   const query = `SELECT categories.category_name,publishers.publisher_name,books.* from books
   join categories on categories.id=books.category_id
-  join publishers on publishers.id=books.publisher_id order by book_num asc
+  join publishers on publishers.id=books.publisher_id order by book_num desc
   `;
   const result = await DBQuery(query);
   res.status(200).json({

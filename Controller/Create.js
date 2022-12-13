@@ -55,6 +55,7 @@ Create_Route.post("/book_add", async function (req, res, next) {
     source_date,
     desk_number,
     remark,
+    sequence_num,
   } = req.body;
   const desk_floor = Number(req.body.desk_floor);
   const book_num = Number(req.body.book_num);
@@ -93,10 +94,10 @@ Create_Route.post("/book_add", async function (req, res, next) {
   } else {
     const query = `INSERT INTO  books(category_id,
       publisher_id,entry_date,book_num,title,author,volume_edition,publication_date,page_number,cost,source_date,
-      desk_number,desk_floor,number_of_copy,available_copy,call_no,remark) 
+      desk_number,desk_floor,number_of_copy,available_copy,call_no,remark,seq_number) 
       VALUES('${category_name}','${publisher_name}','${entry_date}','${book_num}','${title}','${author}',
       '${volume_edition}','${publication_date}','${page_number}','${cost}','${source_date}','${desk_number}','${desk_floor}',
-      '${book_copy}','${book_copy}','${call_no}','${remark}')`;
+      '${book_copy}','${book_copy}','${call_no}','${remark}','${sequence_num}')`;
     const type = "insert";
     const result2 = await DBQuery(query, type);
 
@@ -147,6 +148,7 @@ Create_Route.post(
       source_date,
       desk_number,
       remark,
+      sequence_num,
     } = req.body;
     const desk_floor = Number(req.body.desk_floor);
     const book_num = Number(req.body.book_num);
@@ -186,10 +188,10 @@ Create_Route.post(
     } else {
       const query = `INSERT INTO  books(category_id,
         publisher_id,entry_date,book_num,title,author,volume_edition,publication_date,page_number,cost,source_date,
-        desk_number,desk_floor,number_of_copy,available_copy,call_no,remark,image)
+        desk_number,desk_floor,number_of_copy,available_copy,call_no,remark,image,seq_number)
         VALUES('${category_name}','${publisher_name}','${entry_date}','${book_num}','${title}','${author}',
         '${volume_edition}','${publication_date}','${page_number}','${cost}','${source_date}','${desk_number}','${desk_floor}',
-        '${book_copy}','${book_copy}','${call_no}','${remark}','${imageName}')`;
+        '${book_copy}','${book_copy}','${call_no}','${remark}','${imageName}','${sequence_num}')`;
       const type = "insert";
       const result2 = await DBQuery(query, type);
       res.status(200).json({
