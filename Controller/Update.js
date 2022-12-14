@@ -140,6 +140,8 @@ Update_Route.put(
       DESK_FLOOR,
       REMARK,
       SEQ_NUMBER,
+      COST,
+      OLD_BOOK_NO,
     } = req.body;
     const desk_floor = Number(req.body.DESK_FLOOR);
     const book_num = Number(req.body.BOOK_NUM);
@@ -149,12 +151,12 @@ Update_Route.put(
     const AVAILABLE_COPY = Number(req.body.AVAILABLE_COPY);
 
     const PAGE_NUMBER = Number(req.body.PAGE_NUMBER);
-    const COST =
-      req.body.COST == "NaN"
-        ? 0
-        : req.body.COST == "null"
-        ? 0
-        : Number(req.body.COST);
+    // const COST =
+    //   req.body.COST == "NaN"
+    //     ? 0
+    //     : req.body.COST == "null"
+    //     ? 0
+    //     : Number(req.body.COST);
     const CALL_NO =
       req.body.CALL_NO == "NaN"
         ? 0
@@ -165,7 +167,7 @@ Update_Route.put(
     const query = `UPDATE books SET CALL_NO='${CALL_NO}',COST='${COST}', CATEGORY_ID='${CATEGORY_ID}',PUBLISHER_ID='${PUBLISHER_ID}',NUMBER_OF_COPY='${NUMBER_OF_COPY}'
   ,PAGE_NUMBER='${PAGE_NUMBER}', AUTHOR='${AUTHOR}',DESK_NUMBER='${DESK_NUMBER}',DESK_FLOOR=${desk_floor}
    , book_num=${book_num},title='${TITLE}',VOLUME_EDITION='${VOLUME_EDITION}',REMARK='${REMARK}',SOURCE_DATE='${SOURCE_DATE}',PUBLICATION_DATE='${PUBLICATION_DATE}',entry_date='${ENTRY_DATE}',
-   image='${imageName}',seq_number='${SEQ_NUMBER}'  where id=${id} `;
+   image='${imageName}',seq_number='${SEQ_NUMBER}',OLD_BOOK_NO='${OLD_BOOK_NO}'  where id=${id} `;
     const result2 = await DBQuery(query);
     if (delete_image != null) {
       const filepath = `public/uploadDoc/${delete_image}`;
@@ -200,6 +202,8 @@ Update_Route.put("/bookUpdate/:id", async function (req, res) {
     DESK_NUMBER,
     SEQ_NUMBER,
     REMARK,
+    COST,
+    OLD_BOOK_NO,
   } = req.body;
   const desk_floor = Number(req.body.DESK_FLOOR);
   const book_num = Number(req.body.BOOK_NUM);
@@ -210,12 +214,12 @@ Update_Route.put("/bookUpdate/:id", async function (req, res) {
 
   const PAGE_NUMBER = Number(req.body.PAGE_NUMBER);
 
-  const COST =
-    req.body.COST == "NaN"
-      ? 0
-      : req.body.COST == "null"
-      ? 0
-      : Number(req.body.COST);
+  // const COST =
+  //   req.body.COST == "NaN"
+  //     ? 0
+  //     : req.body.COST == "null"
+  //     ? 0
+  //     : Number(req.body.COST);
   const CALL_NO =
     req.body.CALL_NO == "NaN"
       ? 0
@@ -226,7 +230,7 @@ Update_Route.put("/bookUpdate/:id", async function (req, res) {
   const query = `UPDATE books SET CALL_NO='${CALL_NO}',COST='${COST}', CATEGORY_ID='${CATEGORY_ID}',PUBLISHER_ID='${PUBLISHER_ID}',NUMBER_OF_COPY='${NUMBER_OF_COPY}',
   AVAILABLE_COPY='${AVAILABLE_COPY}',PAGE_NUMBER='${PAGE_NUMBER}', AUTHOR='${AUTHOR}',DESK_NUMBER='${DESK_NUMBER}',DESK_FLOOR='${desk_floor}'
    , book_num='${book_num}',title='${TITLE}',VOLUME_EDITION='${VOLUME_EDITION}',REMARK='${REMARK}',SOURCE_DATE='${SOURCE_DATE}',PUBLICATION_DATE='${PUBLICATION_DATE}',entry_date='${ENTRY_DATE}'
-   ,seq_number='${SEQ_NUMBER}' where id=${id} `;
+   ,seq_number='${SEQ_NUMBER}',OLD_BOOK_NO='${OLD_BOOK_NO}' where id=${id} `;
   const result2 = await DBQuery(query);
 
   res.status(200).json({

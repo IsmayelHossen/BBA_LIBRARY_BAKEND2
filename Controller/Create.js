@@ -56,6 +56,8 @@ Create_Route.post("/book_add", async function (req, res, next) {
     desk_number,
     remark,
     sequence_num,
+    cost,
+    old_book_num,
   } = req.body;
   const desk_floor = Number(req.body.desk_floor);
   const book_num = Number(req.body.book_num);
@@ -67,12 +69,13 @@ Create_Route.post("/book_add", async function (req, res, next) {
   console.log(req.body);
   // const cost = req.body.cost === "NaN" ? "" : Number(req.body.cost);
   // const call_no = req.body.call_no === "NaN" ? "" : Number(req.body.call_no);
-  const cost =
-    req.body.cost == "NaN"
-      ? 0
-      : req.body.cost == "null"
-      ? 0
-      : Number(req.body.cost);
+  // const cost =
+  //   req.body.cost == "NaN"
+  //     ? 0
+  //     : req.body.cost == "null"
+  //     ? 0
+  //     : Number(req.body.cost);
+
   const call_no =
     req.body.call_no == "NaN"
       ? 0
@@ -94,10 +97,10 @@ Create_Route.post("/book_add", async function (req, res, next) {
   } else {
     const query = `INSERT INTO  books(category_id,
       publisher_id,entry_date,book_num,title,author,volume_edition,publication_date,page_number,cost,source_date,
-      desk_number,desk_floor,number_of_copy,available_copy,call_no,remark,seq_number) 
+      desk_number,desk_floor,number_of_copy,available_copy,call_no,remark,seq_number,OLD_BOOK_NO) 
       VALUES('${category_name}','${publisher_name}','${entry_date}','${book_num}','${title}','${author}',
       '${volume_edition}','${publication_date}','${page_number}','${cost}','${source_date}','${desk_number}','${desk_floor}',
-      '${book_copy}','${book_copy}','${call_no}','${remark}','${sequence_num}')`;
+      '${book_copy}','${book_copy}','${call_no}','${remark}','${sequence_num}','${old_book_num}')`;
     const type = "insert";
     const result2 = await DBQuery(query, type);
 
@@ -149,6 +152,8 @@ Create_Route.post(
       desk_number,
       remark,
       sequence_num,
+      cost,
+      old_book_num,
     } = req.body;
     const desk_floor = Number(req.body.desk_floor);
     const book_num = Number(req.body.book_num);
@@ -158,12 +163,12 @@ Create_Route.post(
 
     const page_number = Number(req.body.page_number);
 
-    const cost =
-      req.body.cost == "NaN"
-        ? 0
-        : req.body.cost == "null"
-        ? 0
-        : Number(req.body.cost);
+    // const cost =
+    //   req.body.cost == "NaN"
+    //     ? 0
+    //     : req.body.cost == "null"
+    //     ? 0
+    //     : Number(req.body.cost);
     const call_no =
       req.body.call_no == "NaN"
         ? 0
@@ -188,10 +193,10 @@ Create_Route.post(
     } else {
       const query = `INSERT INTO  books(category_id,
         publisher_id,entry_date,book_num,title,author,volume_edition,publication_date,page_number,cost,source_date,
-        desk_number,desk_floor,number_of_copy,available_copy,call_no,remark,image,seq_number)
+        desk_number,desk_floor,number_of_copy,available_copy,call_no,remark,image,seq_number,OLD_BOOK_NO)
         VALUES('${category_name}','${publisher_name}','${entry_date}','${book_num}','${title}','${author}',
         '${volume_edition}','${publication_date}','${page_number}','${cost}','${source_date}','${desk_number}','${desk_floor}',
-        '${book_copy}','${book_copy}','${call_no}','${remark}','${imageName}','${sequence_num}')`;
+        '${book_copy}','${book_copy}','${call_no}','${remark}','${imageName}','${sequence_num}','${old_book_num}')`;
       const type = "insert";
       const result2 = await DBQuery(query, type);
       res.status(200).json({
