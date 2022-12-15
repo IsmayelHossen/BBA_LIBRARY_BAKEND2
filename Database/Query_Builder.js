@@ -3,12 +3,12 @@ const DBQuery = async function db_query(query, type) {
   let connection = undefined;
   if (connection == undefined) {
     connection = await oracledb.getConnection({
-      // user: "LIBMODULE",
-      // password: "Libmodule123",
-      // connectString: "192.168.3.8/orclpdb",
-      user: "system",
-      password: "system123",
-      connectString: "localhost/orcl",
+      user: "LIBMODULE",
+      password: "Libmodule123",
+      connectString: "192.168.3.8/orclpdb",
+      // user: "system",
+      // password: "system123",
+      // connectString: "localhost/orcl",
     });
   }
   try {
