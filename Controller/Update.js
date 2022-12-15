@@ -26,7 +26,7 @@ var upload = multer({ storage: storage });
 
 Update_Route.put("/publisher/:id", async function (req, res) {
   const id = req.params.id;
-  const { publisher_name } = req.body;
+  const publisher_name = req.body.publisher_name.replace(/'/g, "''");
   const query = `UPDATE publishers SET publisher_name='${publisher_name}' WHERE ID=${id} `;
   const result = DBQuery(query);
   res.status(200).json({
@@ -36,7 +36,7 @@ Update_Route.put("/publisher/:id", async function (req, res) {
 });
 Update_Route.put("/category/:id", async function (req, res) {
   const id = req.params.id;
-  const { category_name, demo } = req.body;
+  const category_name = req.body.category_name.replace(/'/g, "''");
   const query = `UPDATE categories SET category_name='${category_name}' WHERE ID=${id} `;
   const result = DBQuery(query);
   res.status(200).json({
@@ -130,19 +130,19 @@ Update_Route.put(
     fs.unlinkSync(req.file.path);
 
     const {
-      AUTHOR,
-      TITLE,
       ENTRY_DATE,
-      VOLUME_EDITION,
       PUBLICATION_DATE,
-      SOURCE_DATE,
       DESK_NUMBER,
       DESK_FLOOR,
-      REMARK,
       SEQ_NUMBER,
       COST,
       OLD_BOOK_NO,
     } = req.body;
+    const TITLE = req.body.TITLE.replace(/'/g, "''");
+    const AUTHOR = req.body.AUTHOR.replace(/'/g, "''");
+    const SOURCE_DATE = req.body.SOURCE_DATE.replace(/'/g, "''");
+    const VOLUME_EDITION = req.body.VOLUME_EDITION.replace(/'/g, "''");
+    const REMARK = req.body.REMARK.replace(/'/g, "''");
     const desk_floor = Number(req.body.DESK_FLOOR);
     const book_num = Number(req.body.BOOK_NUM);
     const CATEGORY_ID = Number(req.body.CATEGORY_ID);
@@ -193,18 +193,18 @@ Update_Route.put("/bookUpdate/:id", async function (req, res) {
   const { id } = req.params;
 
   const {
-    AUTHOR,
-    TITLE,
     ENTRY_DATE,
-    VOLUME_EDITION,
     PUBLICATION_DATE,
-    SOURCE_DATE,
     DESK_NUMBER,
     SEQ_NUMBER,
-    REMARK,
     COST,
     OLD_BOOK_NO,
   } = req.body;
+  const TITLE = req.body.TITLE.replace(/'/g, "''");
+  const AUTHOR = req.body.AUTHOR.replace(/'/g, "''");
+  const SOURCE_DATE = req.body.SOURCE_DATE.replace(/'/g, "''");
+  const VOLUME_EDITION = req.body.VOLUME_EDITION.replace(/'/g, "''");
+  const REMARK = req.body.REMARK.replace(/'/g, "''");
   const desk_floor = Number(req.body.DESK_FLOOR);
   const book_num = Number(req.body.BOOK_NUM);
   const CATEGORY_ID = Number(req.body.CATEGORY_ID);

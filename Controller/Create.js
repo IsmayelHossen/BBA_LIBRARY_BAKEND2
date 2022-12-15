@@ -29,7 +29,8 @@ var upload = multer({ storage: storage });
 // const uploadFile_books = upload.single("image");
 
 Create_Route.post("/publisher", async function (req, res, next) {
-  const query = `INSERT INTO  publishers(publisher_name) VALUES('${req.body.publisher_name}')`;
+  const publisher = req.body.publisher_name.replace(/'/g, "''");
+  const query = `INSERT INTO  publishers(publisher_name) VALUES('${publisher}')`;
   const type = "insert";
   const result2 = await DBQuery(query, type);
   res.status(200).json({
@@ -38,7 +39,8 @@ Create_Route.post("/publisher", async function (req, res, next) {
 });
 
 Create_Route.post("/category", async function (req, res, next) {
-  const query = `INSERT INTO  categories(category_name) VALUES('${req.body.category_name}')`;
+  const category_name = req.body.category_name.replace(/'/g, "''");
+  const query = `INSERT INTO  categories(category_name) VALUES('${category_name}')`;
   const type = "insert";
   const result2 = await DBQuery(query, type);
   res.status(200).json({
@@ -48,17 +50,17 @@ Create_Route.post("/category", async function (req, res, next) {
 Create_Route.post("/book_add", async function (req, res, next) {
   const {
     entry_date,
-    title,
-    author,
-    volume_edition,
     publication_date,
-    source_date,
     desk_number,
-    remark,
     sequence_num,
     cost,
     old_book_num,
   } = req.body;
+  const title = req.body.title.replace(/'/g, "''");
+  const author = req.body.author.replace(/'/g, "''");
+  const source_date = req.body.source_date.replace(/'/g, "''");
+  const volume_edition = req.body.volume_edition.replace(/'/g, "''");
+  const remark = req.body.remark.replace(/'/g, "''");
   const desk_floor = Number(req.body.desk_floor);
   const book_num = Number(req.body.book_num);
   const category_name = Number(req.body.category_name);
@@ -67,14 +69,6 @@ Create_Route.post("/book_add", async function (req, res, next) {
 
   const page_number = Number(req.body.page_number);
   console.log(req.body);
-  // const cost = req.body.cost === "NaN" ? "" : Number(req.body.cost);
-  // const call_no = req.body.call_no === "NaN" ? "" : Number(req.body.call_no);
-  // const cost =
-  //   req.body.cost == "NaN"
-  //     ? 0
-  //     : req.body.cost == "null"
-  //     ? 0
-  //     : Number(req.body.cost);
 
   const call_no =
     req.body.call_no == "NaN"
@@ -144,17 +138,17 @@ Create_Route.post(
 
     const {
       entry_date,
-      title,
-      author,
-      volume_edition,
       publication_date,
-      source_date,
       desk_number,
-      remark,
       sequence_num,
       cost,
       old_book_num,
     } = req.body;
+    const title = req.body.title.replace(/'/g, "''");
+    const author = req.body.author.replace(/'/g, "''");
+    const source_date = req.body.source_date.replace(/'/g, "''");
+    const volume_edition = req.body.volume_edition.replace(/'/g, "''");
+    const remark = req.body.remark.replace(/'/g, "''");
     const desk_floor = Number(req.body.desk_floor);
     const book_num = Number(req.body.book_num);
     const category_name = Number(req.body.category_name);
@@ -240,8 +234,15 @@ Create_Route.post("/requestSend", async function (req, res, next) {
 });
 //AcceptbookIssue
 Create_Route.post("/AcceptbookIssue", async function (req, res, next) {
-  const { book_id, emp_id, issue_date, realse_date, request_date } = req.body;
-  const query = `INSERT INTO  bookrent(BOOK_ID,EMP_ID,ISSUE_DATE,RELEASE_DATE,STATUS) VALUES('${book_id}','${emp_id}','${issue_date}','${realse_date}','Service on going')`;
+  const {
+    book_id,
+    emp_id,
+    issue_date,
+    realse_date,
+    request_date,
+    old_book_no,
+  } = req.body;
+  const query = `INSERT INTO  bookrent(BOOK_ID,EMP_ID,ISSUE_DATE,RELEASE_DATE,STATUS,OLD_BOOK_NO) VALUES('${book_id}','${emp_id}','${issue_date}','${realse_date}','Service on going','${old_book_no}')`;
   const type = "insert";
   const result2 = await DBQuery(query, type);
   if (result2) {

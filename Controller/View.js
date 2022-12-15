@@ -429,5 +429,17 @@ View_Route.get(
     });
   }
 );
+//getBookCopy_onserviceing
+View_Route.get("/getBookCopy_onserviceing/:book_id", async function (req, res) {
+  const { book_id } = req.params;
 
+  const query = `Select*from bookrent where book_id='${book_id}' AND status='Service on going'
+  `;
+  const result = await DBQuery(query);
+
+  res.status(200).json({
+    success: true,
+    data: result,
+  });
+});
 module.exports = View_Route;
