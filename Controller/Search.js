@@ -181,4 +181,26 @@ Search_Route.get("/searchRentDataByFilter/:type", async function (req, res) {
   });
 });
 
+// bookrenewstatus_user
+Search_Route.get(
+  "/bookrenewstatus_user/:search/:emp_id",
+  async function (req, res) {
+    const { search, emp_id } = req.params;
+
+    const query = `SELECT books.*,categories.category_name,bookrenew.*,publishers.publisher_name,employees.*,bookrent.* from bookrent
+  join books on  bookrent.book_id=books.book_num
+  join categories on categories.id=books.category_id
+  join publishers on publishers.id=books.publisher_id
+  join employees on bookrent.emp_id=employees.id
+  join bookrenew on bookrenew.bookrent_id=bookrent.id where (books.book_num like '%${search}%' OR bookrent.old_book_no like '%${search}%' OR lower(books.title) like '%${search}%' OR lower(categories.category_name) like '%${search}%' OR lower(publishers.publisher_name) like '%${search}%' OR lower(books.author) like '%${search}%') and  employees.id=${emp_id}  order by bookrenew.id ASC
+  `;
+    const result = await DBQuery(query);
+    res.status(200).json({
+      success: true,
+      data: result,
+      msg: "Search result",
+    });
+  }
+);
+
 module.exports = Search_Route;

@@ -97,10 +97,17 @@ Create_Route.post("/book_add", async function (req, res, next) {
       '${book_copy}','${book_copy}','${call_no}','${remark}','${sequence_num}','${old_book_num}')`;
     const type = "insert";
     const result2 = await DBQuery(query, type);
-
-    res.status(200).json({
-      success: true,
-    });
+    console.log(result2);
+    if (result2 == 1756) {
+      res.status(200).json({
+        success: false,
+        msg: "Please insert proper value",
+      });
+    } else {
+      res.status(200).json({
+        success: true,
+      });
+    }
   }
 });
 // book add with image
@@ -193,6 +200,7 @@ Create_Route.post(
         '${book_copy}','${book_copy}','${call_no}','${remark}','${imageName}','${sequence_num}','${old_book_num}')`;
       const type = "insert";
       const result2 = await DBQuery(query, type);
+      conso;
       res.status(200).json({
         success: true,
       });

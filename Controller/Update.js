@@ -138,11 +138,31 @@ Update_Route.put(
       COST,
       OLD_BOOK_NO,
     } = req.body;
-    const TITLE = req.body.TITLE.replace(/'/g, "''");
-    const AUTHOR = req.body.AUTHOR.replace(/'/g, "''");
-    const SOURCE_DATE = req.body.SOURCE_DATE.replace(/'/g, "''");
-    const VOLUME_EDITION = req.body.VOLUME_EDITION.replace(/'/g, "''");
-    const REMARK = req.body.REMARK.replace(/'/g, "''");
+    // const TITLE = req.body.TITLE.replace(/'/g, "''");
+    // const AUTHOR = req.body.AUTHOR.replace(/'/g, "''");
+    // const SOURCE_DATE = req.body.SOURCE_DATE.replace(/'/g, "''");
+    // const VOLUME_EDITION = req.body.VOLUME_EDITION.replace(/'/g, "''");
+    // const REMARK = req.body.REMARK.replace(/'/g, "''");
+    const TITLE =
+      req.body.TITLE != null
+        ? req.body.TITLE.replace(/'/g, "''")
+        : req.body.TITLE;
+    const AUTHOR =
+      req.body.AUTHOR != null
+        ? req.body.AUTHOR.replace(/'/g, "''")
+        : req.body.AUTHOR;
+    const SOURCE_DATE =
+      req.body.SOURCE_DATE != null
+        ? req.body.SOURCE_DATE.replace(/'/g, "''")
+        : req.body.SOURCE_DATE;
+    const VOLUME_EDITION =
+      req.body.VOLUME_EDITION != null
+        ? req.body.VOLUME_EDITION.replace(/'/g, "''")
+        : req.body.VOLUME_EDITION;
+    const REMARK =
+      req.body.REMARK != null
+        ? req.body.REMARK.replace(/'/g, "''")
+        : req.body.REMARK;
     const desk_floor = Number(req.body.DESK_FLOOR);
     const book_num = Number(req.body.BOOK_NUM);
     const CATEGORY_ID = Number(req.body.CATEGORY_ID);
@@ -200,11 +220,27 @@ Update_Route.put("/bookUpdate/:id", async function (req, res) {
     COST,
     OLD_BOOK_NO,
   } = req.body;
-  const TITLE = req.body.TITLE.replace(/'/g, "''");
-  const AUTHOR = req.body.AUTHOR.replace(/'/g, "''");
-  const SOURCE_DATE = req.body.SOURCE_DATE.replace(/'/g, "''");
-  const VOLUME_EDITION = req.body.VOLUME_EDITION.replace(/'/g, "''");
-  const REMARK = req.body.REMARK.replace(/'/g, "''");
+  const TITLE =
+    req.body.TITLE != null
+      ? req.body.TITLE.replace(/'/g, "''")
+      : req.body.TITLE;
+  const AUTHOR =
+    req.body.AUTHOR != null
+      ? req.body.AUTHOR.replace(/'/g, "''")
+      : req.body.AUTHOR;
+  const SOURCE_DATE =
+    req.body.SOURCE_DATE != null
+      ? req.body.SOURCE_DATE.replace(/'/g, "''")
+      : req.body.SOURCE_DATE;
+  const VOLUME_EDITION =
+    req.body.VOLUME_EDITION != null
+      ? req.body.VOLUME_EDITION.replace(/'/g, "''")
+      : req.body.VOLUME_EDITION;
+  const REMARK =
+    req.body.REMARK != null
+      ? req.body.REMARK.replace(/'/g, "''")
+      : req.body.REMARK;
+
   const desk_floor = Number(req.body.DESK_FLOOR);
   const book_num = Number(req.body.BOOK_NUM);
   const CATEGORY_ID = Number(req.body.CATEGORY_ID);
