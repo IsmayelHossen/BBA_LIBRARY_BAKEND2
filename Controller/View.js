@@ -80,12 +80,14 @@ View_Route.get("/getbookAcceptRequest", async function (req, res) {
   });
 });
 //geDeclnedBookRequest
+
 View_Route.get("/geDeclinedBookRequest", async function (req, res) {
   const query = `SELECT sendrequest.*,categories.category_name,publishers.publisher_name,books.*,employees.* from sendrequest 
   join books on  sendrequest.book_id=books.book_num
   join categories on categories.id=books.category_id
   join publishers on publishers.id=books.publisher_id
   join employees on sendrequest.emp_id=employees.id where sendrequest.status=2
+  
   `;
   const result = await DBQuery(query);
   res.status(200).json({
