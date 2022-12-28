@@ -161,7 +161,7 @@ Search_Route.get(
     join books on  bookrent.book_id=books.book_num
     join categories on categories.id=books.category_id
     join publishers on publishers.id=books.publisher_id
-    join employees on bookrent.emp_id=employees.id where (lower(categories.category_name) like '%${search}%'OR lower(publishers.publisher_name) like '%${search}%'  OR books.book_num like '%${search}%' OR lower(books.title) like '%${search}%' OR lower(books.author) like '%${search}%' OR lower(bookrent.status) like '%${search}%') AND employees.id=${req.params.emp_id}
+    join employees on bookrent.emp_id=employees.id where (lower(categories.category_name) like '%${search}%'OR lower(publishers.publisher_name) like '%${search}%' OR bookrent.old_book_no like '%${search}%'  OR books.book_num like '%${search}%' OR lower(books.title) like '%${search}%' OR lower(books.author) like '%${search}%' OR lower(bookrent.status) like '%${search}%') AND employees.id=${req.params.emp_id}
   `;
 
     const result = await DBQuery(query);
