@@ -25,11 +25,13 @@ Search_Route.get("/category/:search", async function (req, res) {
 //book request status rent admin
 Search_Route.get("/bookrentStatus_admin/:search", async function (req, res) {
   const search = req.params.search;
-  const query = `SELECT bookrent.*,categories.category_name,publishers.publisher_name,books.*,employees.* from bookrent 
+  const query = ` 
+  SELECT books.*,categories.category_name,publishers.publisher_name,employees.*,bookrent.* from bookrent
   join books on  bookrent.book_id=books.book_num
   join categories on categories.id=books.category_id
   join publishers on publishers.id=books.publisher_id
-  join employees on bookrent.emp_id=employees.id where lower(categories.category_name) like '%${search}%' OR lower(publishers.publisher_name) like '%${search}%' OR books.book_num like '%${search}%' OR lower(books.title) like '%${search}%' OR lower(books.author) like '%${search}%' OR lower(bookrent.status) like '%${search}%' OR lower(employees.name) like '%${search}%' 
+  join employees on bookrent.emp_id=employees.id where lower(categories.category_name) like '%${search}%' OR lower(publishers.publisher_name) like '%${search}%' OR bookrent.old_book_no like '%${search}%' OR books.book_num like '%${search}%' OR lower(books.title) like '%${search}%' OR lower(books.author) like '%${search}%' OR lower(bookrent.status) like '%${search}%' OR lower(employees.name) like '%${search}%' 
+ 
   `;
 
   const result = await DBQuery(query);
@@ -204,7 +206,7 @@ join publishers on publishers.id=books.publisher_id
 //searchRentDataByFilter
 Search_Route.get("/searchRentDataByFilter/:type", async function (req, res) {
   const search = req.params.type;
-
+  console.log(search);
   const query = `SELECT books.*,categories.category_name,publishers.publisher_name,employees.*,bookrent.* from bookrent
   join books on  bookrent.book_id=books.book_num
   join categories on categories.id=books.category_id
@@ -213,6 +215,7 @@ Search_Route.get("/searchRentDataByFilter/:type", async function (req, res) {
   `;
 
   const result = await DBQuery(query);
+  console.log(result);
   res.status(200).json({
     success: true,
     data: result,
