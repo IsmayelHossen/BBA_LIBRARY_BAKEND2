@@ -7,7 +7,7 @@ const DBQuery = require("../Database/Query_Builder");
 
 // getpublisher
 View_Route.get("/getpublisher", async function (req, res) {
-  const query = `SELECT*from publishers`;
+  const query = `SELECT*from publishers order by id desc`;
   const result = await DBQuery(query);
   res.status(200).json({
     success: true,
@@ -16,7 +16,7 @@ View_Route.get("/getpublisher", async function (req, res) {
 });
 //getcategory
 View_Route.get("/getcategory", async function (req, res) {
-  const query = `SELECT*from categories`;
+  const query = `SELECT*from categories order by id desc`;
   const result = await DBQuery(query);
   res.status(200).json({
     success: true,
@@ -40,7 +40,7 @@ View_Route.get("/getbookPendingRequest", async function (req, res) {
   join books on  sendrequest.book_id=books.book_num
   join categories on categories.id=books.category_id
   join publishers on publishers.id=books.publisher_id
-  join employees on sendrequest.emp_id=employees.id where sendrequest.status=0
+  join employees on sendrequest.emp_id=employees.id where sendrequest.status=0 order by sendrequest.id desc
   `;
   const result = await DBQuery(query);
   res.status(200).json({
@@ -56,7 +56,7 @@ View_Route.get(
   join books on  sendrequest.book_id=books.book_num
   join categories on categories.id=books.category_id
   join publishers on publishers.id=books.publisher_id
-  join employees on sendrequest.emp_id=employees.id where employees.id=${req.params.emp_id}
+  join employees on sendrequest.emp_id=employees.id where employees.id=${req.params.emp_id} order by sendrequest.id desc
   `;
     const result = await DBQuery(query);
     res.status(200).json({
@@ -71,7 +71,7 @@ View_Route.get("/getbookAcceptRequest", async function (req, res) {
   join books on  sendrequest.book_id=books.book_num
   join categories on categories.id=books.category_id
   join publishers on publishers.id=books.publisher_id
-  join employees on sendrequest.emp_id=employees.id where sendrequest.status=1
+  join employees on sendrequest.emp_id=employees.id where sendrequest.status=1 order by sendrequest.id desc
   `;
   const result = await DBQuery(query);
   res.status(200).json({
@@ -86,7 +86,7 @@ View_Route.get("/geDeclinedBookRequest", async function (req, res) {
   join books on  sendrequest.book_id=books.book_num
   join categories on categories.id=books.category_id
   join publishers on publishers.id=books.publisher_id
-  join employees on sendrequest.emp_id=employees.id where sendrequest.status=2
+  join employees on sendrequest.emp_id=employees.id where sendrequest.status=2 order by sendrequest.id desc
   
   `;
   const result = await DBQuery(query);
@@ -102,7 +102,7 @@ View_Route.get("/getbookrentstatus", async function (req, res) {
   join books on  bookrent.book_id=books.book_num
   join categories on categories.id=books.category_id
   join publishers on publishers.id=books.publisher_id
-  join employees on bookrent.emp_id=employees.id
+  join employees on bookrent.emp_id=employees.id order by bookrent.id desc
   `;
 
   const result = await DBQuery(query);
@@ -116,7 +116,7 @@ View_Route.get("/getbookpreviousstatus/:emp_id", async function (req, res) {
   join books on  bookrent.book_id=books.book_num
   join categories on categories.id=books.category_id
   join publishers on publishers.id=books.publisher_id
-  join employees on bookrent.emp_id=employees.id where employees.id=${req.params.emp_id}
+  join employees on bookrent.emp_id=employees.id where employees.id=${req.params.emp_id}  order by bookrent.id desc
   `;
 
   const result = await DBQuery(query);
@@ -132,7 +132,7 @@ View_Route.get("/gettotalbookUsed/:emp_id", async function (req, res) {
   join books on  bookrent.book_id=books.book_num
   join categories on categories.id=books.category_id
   join publishers on publishers.id=books.publisher_id
-  join employees on bookrent.emp_id=employees.id where employees.id=${req.params.emp_id}
+  join employees on bookrent.emp_id=employees.id where employees.id=${req.params.emp_id}  order by bookrent.id desc
   `;
 
   const result = await DBQuery(query);
@@ -145,7 +145,7 @@ View_Route.get("/gettotalbookUsed/:emp_id", async function (req, res) {
 View_Route.get(
   "/getemployee_previous_bookRecord/:employee_id",
   async function (req, res) {
-    const query = `SELECT*FROM bookrent where emp_id=${req.params.employee_id} `;
+    const query = `SELECT*FROM bookrent where emp_id=${req.params.employee_id}  order by bookrent.id desc `;
     const result = await DBQuery(query);
     res.status(200).json({
       success: true,
@@ -157,7 +157,7 @@ View_Route.get(
 View_Route.get(
   "/gettotalbookAccepptPending/:employee_id",
   async function (req, res) {
-    const query = `SELECT*FROM sendrequest where emp_id=${req.params.employee_id} `;
+    const query = `SELECT*FROM sendrequest where emp_id=${req.params.employee_id}  order by id desc`;
     const result = await DBQuery(query);
 
     res.status(200).json({
@@ -168,7 +168,7 @@ View_Route.get(
 );
 //admin  getPendingAcceptDeclinedData
 View_Route.get("/getPendingAcceptDeclinedData", async function (req, res) {
-  const query = `SELECT*FROM sendrequest `;
+  const query = `SELECT*FROM sendrequest  order by id desc `;
   const result = await DBQuery(query);
 
   res.status(200).json({
@@ -178,7 +178,7 @@ View_Route.get("/getPendingAcceptDeclinedData", async function (req, res) {
 });
 //gettotalbookissudForEmp
 View_Route.get("/gettotalbookissudForEmp", async function (req, res) {
-  const query = `SELECT*FROM bookrent `;
+  const query = `SELECT*FROM bookrent  order by id desc `;
   const result = await DBQuery(query);
 
   res.status(200).json({
@@ -189,7 +189,7 @@ View_Route.get("/gettotalbookissudForEmp", async function (req, res) {
 
 // getAdditionalTimerequest
 View_Route.get("/getAdditionalTimerequest", async function (req, res) {
-  const query = `SELECT distinct bookrent_id FROM bookrenew`;
+  const query = `SELECT distinct bookrent_id FROM bookrenew  order by id desc`;
   const result = await DBQuery(query);
   res.status(200).json({
     success: true,
@@ -203,7 +203,7 @@ View_Route.get("/getAdditionalTimeRequestAll", async function (req, res) {
   join categories on categories.id=books.category_id
   join publishers on publishers.id=books.publisher_id
   join employees on bookrent.emp_id=employees.id 
-  join bookrenew on bookrenew.bookrent_id=bookrent.id 
+  join bookrenew on bookrenew.bookrent_id=bookrent.id  order by bookrenew.id desc
   `;
   const result = await DBQuery(query);
 
@@ -222,7 +222,7 @@ View_Route.get(
   join employees on bookrent.emp_id=employees.id 
   join categories on categories.id=books.category_id
   join publishers on publishers.id=books.publisher_id
-  join bookrenew on bookrenew.bookrent_id=bookrent.id where bookrent.id=${req.params.bookrent_id}
+  join bookrenew on bookrenew.bookrent_id=bookrent.id where bookrent.id=${req.params.bookrent_id} order by bookrenew.id desc
   `;
     const result = await DBQuery(query);
 
@@ -267,7 +267,7 @@ View_Route.get(
   join books on  sendrequest.book_id=books.book_num
   join categories on categories.id=books.category_id
   join publishers on publishers.id=books.publisher_id
-  join employees on sendrequest.emp_id=employees.id where sendrequest.status=0
+  join employees on sendrequest.emp_id=employees.id where sendrequest.status=0 order by sendrequest.id desc
   `;
     const result = await DBQuery(query);
     res.status(200).json({
@@ -284,7 +284,7 @@ View_Route.get(
   join books on  sendrequest.book_id=books.book_num
   join categories on categories.id=books.category_id
   join publishers on publishers.id=books.publisher_id
-  join employees on sendrequest.emp_id=employees.id where sendrequest.status=1
+  join employees on sendrequest.emp_id=employees.id where sendrequest.status=1 order by sendrequest.id desc
   `;
     const result = await DBQuery(query);
     res.status(200).json({
@@ -301,7 +301,7 @@ View_Route.get(
   join books on  bookrent.book_id=books.book_num
   join categories on categories.id=books.category_id
   join publishers on publishers.id=books.publisher_id
-  join employees on bookrent.emp_id=employees.id
+  join employees on bookrent.emp_id=employees.id order by bookrent.id asc
   `;
 
     const result = await DBQuery(query);
