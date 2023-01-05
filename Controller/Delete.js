@@ -7,6 +7,7 @@ const fs = require("fs");
 const { log } = require("console");
 //database
 const DBQuery = require("../Database/Query_Builder");
+const Connection = require("../Database/Connection");
 
 // Delete_Route.delete("/delete/docs/:id/:filename", async function (req, res) {
 //   const id = req.params.id;
@@ -47,42 +48,63 @@ const DBQuery = require("../Database/Query_Builder");
 // });
 //category delete
 
-Delete_Route.delete("/publisher/:id", async function (req, res) {
+Delete_Route.delete("/publisher/:id", Connection, async function (req, res) {
   const id = req.params.id;
   const query = `delete from publishers where id='${id}'`;
-  const result1 = await DBQuery(query);
-  res.status(200).json({
-    success: true,
-    message: "Deleted data suceessfully",
-  });
-});
 
-Delete_Route.delete("/category/:id", async function (req, res) {
-  const id = req.params.id;
-  const query = `delete from categories where id='${id}'`;
-  const result1 = await DBQuery(query);
+  let result = await req.Conn.execute(query);
   res.status(200).json({
     success: true,
-    message: "Deleted data suceessfully",
+    msg: "Deleted data suceessfully",
   });
-});
-Delete_Route.delete("/book/:id/:imagename", async function (req, res) {
-  const id = req.params.id;
-  const query = `delete from books where id='${id}'`;
-  const result1 = await DBQuery(query);
-  if (result1 == 2292) {
-    res.status(200).json({
-      childDataFoundError: true,
-      message: "At first delete child record",
-    });
-  } else {
-    const filepath = `public/uploadDoc/${req.params.imagename}`;
-    await fs.unlink(filepath, () => {
-      res.status(200).json({
-        success: true,
-        message: "Deleted data suceessfully",
-      });
-    });
+  if (req.Conn) {
+    await req.Conn.close();
   }
 });
+
+Delete_Route.delete("/category/:id", Connection, async function (req, res) {
+  const id = req.params.id;
+  const query = `delete from categories where id='${id}'`;
+  let result = await req.Conn.execute(query);
+  res.status(200).json({
+    success: true,
+    msg: "Deleted data suceessfully",
+  });
+  if (req.Conn) {
+    await req.Conn.close();
+  }
+});
+Delete_Route.delete(
+  "/book/:id/:imagename",
+  Connection,
+  async function (req, res) {
+    const id = req.params.id;
+    const query = `delete from books where id='${id}'`;
+    try {
+      let result = await req.Conn.execute(query);
+
+      const filepath = `public/uploadDoc/${req.params.imagename}`;
+      await fs.unlink(filepath, () => {
+        res.status(200).json({
+          success: true,
+          message: "Deleted data suceessfully",
+        });
+      });
+      if (req.Conn) {
+        await req.Conn.close();
+      }
+    } catch (error) {
+      if (error.errorNum == 2292) {
+        res.status(200).json({
+          childDataFoundError: true,
+          message: "At first delete child record",
+        });
+      }
+      if (req.Conn) {
+        console.log(error.errorNum);
+        await req.Conn.close();
+      }
+    }
+  }
+);
 module.exports = Delete_Route;

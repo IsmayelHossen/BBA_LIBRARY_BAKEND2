@@ -6,6 +6,7 @@ const multer = require("multer");
 const sharp = require("sharp");
 const fs = require("fs");
 const DBQuery = require("../Database/Query_Builder");
+const Connection = require("../Database/Connection");
 //database
 var a;
 var b;
@@ -28,26 +29,46 @@ var upload = multer({ storage: storage });
 // const uploadSingleImage = upload.array("documents");
 // const uploadFile_books = upload.single("image");
 
-Create_Route.post("/publisher", async function (req, res, next) {
+Create_Route.post("/publisher", Connection, async function (req, res, next) {
+  console.log(req.body);
   const publisher = req.body.publisher_name.replace(/'/g, "''");
   const query = `INSERT INTO  publishers(publisher_name) VALUES('${publisher}')`;
-  const type = "insert";
-  const result2 = await DBQuery(query, type);
-  res.status(200).json({
-    success: true,
-  });
+  try {
+    let result = await req.Conn.execute(query);
+    console.log(result);
+    res.status(200).json({
+      success: true,
+      msg: "Publisher Added Successfully",
+    });
+    if (req.Conn) {
+      // conn assignment worked, need to close
+      console.log("close");
+      await req.Conn.close();
+    }
+  } catch (errors) {
+    console.log(errors);
+    console.log("Query not executed");
+  }
 });
 
-Create_Route.post("/category", async function (req, res, next) {
+Create_Route.post("/category", Connection, async function (req, res, next) {
   const category_name = req.body.category_name.replace(/'/g, "''");
   const query = `INSERT INTO  categories(category_name) VALUES('${category_name}')`;
-  const type = "insert";
-  const result2 = await DBQuery(query, type);
-  res.status(200).json({
-    success: true,
-  });
+  try {
+    let result = await req.Conn.execute(query);
+    res.status(200).json({
+      success: true,
+      msg: "Category Added Successfully",
+    });
+    if (req.Conn) {
+      await req.Conn.close();
+    }
+  } catch (errors) {
+    console.log(errors);
+    console.log("Query not executed");
+  }
 });
-Create_Route.post("/book_add", async function (req, res, next) {
+Create_Route.post("/book_add", Connection, async function (req, res, next) {
   const {
     entry_date,
     publication_date,
@@ -77,8 +98,10 @@ Create_Route.post("/book_add", async function (req, res, next) {
       ? 0
       : Number(req.body.call_no);
   //check book num for unique
+
   const querycheck = `SELECT*FROM books where book_num=${book_num}`;
-  const querycheck_result = await DBQuery(querycheck);
+  let result = await req.Conn.execute(querycheck);
+  const querycheck_result = result.rows;
 
   if (
     querycheck_result.length > 0 &&
@@ -88,6 +111,9 @@ Create_Route.post("/book_add", async function (req, res, next) {
       success: "NotUnique",
       bookNum: book_num,
     });
+    if (req.Conn) {
+      await req.Conn.close();
+    }
   } else {
     const query = `INSERT INTO  books(category_id,
       publisher_id,entry_date,book_num,title,author,volume_edition,publication_date,page_number,cost,source_date,
@@ -95,18 +121,28 @@ Create_Route.post("/book_add", async function (req, res, next) {
       VALUES('${category_name}','${publisher_name}','${entry_date}','${book_num}','${title}','${author}',
       '${volume_edition}','${publication_date}','${page_number}','${cost}','${source_date}','${desk_number}','${desk_floor}',
       '${book_copy}','${book_copy}','${call_no}','${remark}','${sequence_num}','${old_book_num}')`;
-    const type = "insert";
-    const result2 = await DBQuery(query, type);
-    console.log(result2);
-    if (result2 == 1756) {
-      res.status(200).json({
-        success: false,
-        msg: "Please insert proper value",
-      });
-    } else {
+    try {
+      let result = await req.Conn.execute(query);
       res.status(200).json({
         success: true,
+        msg: "Book Added Successfully",
       });
+
+      if (req.Conn) {
+        await req.Conn.close();
+      }
+    } catch (errors) {
+      console.log(errors);
+      console.log("Query not executed");
+      if (errors.errorNum == 1756) {
+        res.status(200).json({
+          success: false,
+          msg: "Please insert proper value",
+        });
+        if (req.Conn) {
+          await req.Conn.close();
+        }
+      }
     }
   }
 });
@@ -115,6 +151,7 @@ Create_Route.post("/book_add", async function (req, res, next) {
 Create_Route.post(
   "/book_add_withImage",
   upload.single("image"),
+  Connection,
   async function (req, res, next) {
     // uploadFile_books(req, res, async function (err) {
     //   if (err) {
@@ -180,8 +217,10 @@ Create_Route.post(
     console.log(req.body);
     console.log("cost", cost);
     console.log("call_no", call_no);
+
     const querycheck = `SELECT*FROM books where book_num=${book_num}`;
-    const querycheck_result = await DBQuery(querycheck);
+    let result = await req.Conn.execute(querycheck);
+    const querycheck_result = result.rows;
 
     if (
       querycheck_result.length > 0 &&
@@ -191,6 +230,9 @@ Create_Route.post(
         success: "NotUnique",
         bookNum: book_num,
       });
+      if (req.Conn) {
+        await req.Conn.close();
+      }
     } else {
       const query = `INSERT INTO  books(category_id,
         publisher_id,entry_date,book_num,title,author,volume_edition,publication_date,page_number,cost,source_date,
@@ -198,27 +240,46 @@ Create_Route.post(
         VALUES('${category_name}','${publisher_name}','${entry_date}','${book_num}','${title}','${author}',
         '${volume_edition}','${publication_date}','${page_number}','${cost}','${source_date}','${desk_number}','${desk_floor}',
         '${book_copy}','${book_copy}','${call_no}','${remark}','${imageName}','${sequence_num}','${old_book_num}')`;
-      const type = "insert";
-      const result2 = await DBQuery(query, type);
-      conso;
-      res.status(200).json({
-        success: true,
-      });
+      try {
+        let result = await req.Conn.execute(query);
+        res.status(200).json({
+          success: true,
+          msg: "Book Added Successfully",
+        });
+
+        if (req.Conn) {
+          await req.Conn.close();
+        }
+      } catch (errors) {
+        console.log(errors);
+        console.log("Query not executed");
+        if (errors.errorNum == 1756) {
+          res.status(200).json({
+            success: false,
+            msg: "Please insert proper value",
+          });
+        }
+        if (req.Conn) {
+          await req.Conn.close();
+        }
+      }
     }
 
     // });
   }
 );
-Create_Route.post("/requestSend", async function (req, res, next) {
+Create_Route.post("/requestSend", Connection, async function (req, res, next) {
   const { bookNum, emplyee_id, request_date, otp } = req.body;
-  console.log(req.body);
   const checkQuery = `SELECT*FROM bookrent where status='Service on going' AND emp_id=${emplyee_id}`;
-  const result = await DBQuery(checkQuery);
-  const alreadyThisBookOnServce_Query = `SELECT*FROM bookrent where status='Service on going' AND emp_id=${emplyee_id} AND book_id=${bookNum}`;
-  const Existresult = await DBQuery(alreadyThisBookOnServce_Query);
-  const maxQuery = "SELECT*FROM booklimit";
-  const Maxresult = await DBQuery(maxQuery);
+  let querycheck_result = await req.Conn.execute(checkQuery);
+  const result = querycheck_result.rows;
 
+  const alreadyThisBookOnServce_Query = `SELECT*FROM bookrent where status='Service on going' AND emp_id=${emplyee_id} AND book_id=${bookNum}`;
+  let Execute = await req.Conn.execute(alreadyThisBookOnServce_Query);
+  const Existresult = Execute.rows;
+  const maxQuery = "SELECT*FROM booklimit";
+  let Execute2 = await req.Conn.execute(maxQuery);
+  const Maxresult = Execute2.rows;
   if (
     result.length > 0 &&
     Maxresult.length &&
@@ -227,62 +288,106 @@ Create_Route.post("/requestSend", async function (req, res, next) {
     res.status(200).json({
       success1: "NotEligible",
     });
+    if (req.Conn) {
+      await req.Conn.close();
+    }
   } else if (Existresult.length > 0) {
     res.status(200).json({
       success2: "OnGoningAlready",
     });
+    if (req.Conn) {
+      console.log("close");
+      await req.Conn.close();
+    }
   } else {
     const query = `INSERT INTO  sendrequest(emp_id,book_id,status,request_date,otp) VALUES('${emplyee_id}','${bookNum}',0,'${request_date}','${otp}')`;
-    const type = "insert";
-    const result2 = await DBQuery(query, type);
-    res.status(200).json({
-      success: true,
-    });
-  }
-});
-//AcceptbookIssue
-Create_Route.post("/AcceptbookIssue", async function (req, res, next) {
-  const {
-    book_id,
-    emp_id,
-    issue_date,
-    realse_date,
-    request_date,
-    old_book_no,
-  } = req.body;
-  const query = `INSERT INTO  bookrent(BOOK_ID,EMP_ID,ISSUE_DATE,RELEASE_DATE,STATUS,OLD_BOOK_NO) VALUES('${book_id}','${emp_id}','${issue_date}','${realse_date}','Service on going','${old_book_no}')`;
-  const type = "insert";
-  const result2 = await DBQuery(query, type);
-  if (result2) {
-    const query23 = `SELECT*FROM books where book_num=${book_id}`;
-    const result32 = await DBQuery(query23);
-    const availabl = result32[0].AVAILABLE_COPY;
-    const numberofcopy = result32[0].NUMBER_OF_COPY;
-
-    if (availabl > 0 && numberofcopy >= availabl) {
-      const new_available = availabl - 1;
-      const query42 = `UPDATE books set AVAILABLE_COPY=${new_available} WHERE book_num=${book_id}`;
-      const result321 = await DBQuery(query42);
-      const query420 = `UPDATE sendrequest set status=3 WHERE book_id=${book_id} and emp_id=${emp_id} AND request_date='${request_date}'`;
-      const result320 = await DBQuery(query420);
+    try {
+      let result = await req.Conn.execute(query);
       res.status(200).json({
         success: true,
+        msg: "Book Request Sent Successfully",
       });
-    } else {
-      res.status(200).json({
-        success1: true,
-      });
+      if (req.Conn) {
+        await req.Conn.close();
+      }
+    } catch (errors) {
+      console.log(errors);
+      console.log("Query not executed");
     }
   }
 });
+//AcceptbookIssue
+Create_Route.post(
+  "/AcceptbookIssue",
+  Connection,
+  async function (req, res, next) {
+    const {
+      book_id,
+      emp_id,
+      issue_date,
+      realse_date,
+      request_date,
+      old_book_no,
+    } = req.body;
+    const query = `INSERT INTO  bookrent(BOOK_ID,EMP_ID,ISSUE_DATE,RELEASE_DATE,STATUS,OLD_BOOK_NO) VALUES('${book_id}','${emp_id}','${issue_date}','${realse_date}','Service on going','${old_book_no}')`;
 
-Create_Route.post("/additionalTimeRequest", async function (req, res, next) {
-  const { id, newrelease_date, prevous_release_date, request_date } = req.body;
-  const query = `INSERT INTO bookrenew(bookrent_id,request_date,pre_release_date,new_release_date,status) VALUES('${id}','${request_date}','${prevous_release_date}','${newrelease_date}','${0}')`;
-  const type = "insert";
-  const result2 = await DBQuery(query, type);
-  res.status(200).json({
-    success: true,
-  });
-});
+    try {
+      let result2 = await req.Conn.execute(query);
+
+      if (result2.rowsAffected) {
+        const query23 = `SELECT*FROM books where book_num=${book_id}`;
+        let execute = await req.Conn.execute(query23);
+        const result32 = execute.rows;
+        const availabl = result32[0].AVAILABLE_COPY;
+        const numberofcopy = result32[0].NUMBER_OF_COPY;
+
+        if (availabl > 0 && numberofcopy >= availabl) {
+          const new_available = availabl - 1;
+          const query42 = `UPDATE books set AVAILABLE_COPY=${new_available} WHERE book_num=${book_id}`;
+          const result321 = await req.Conn.execute(query42);
+          const query420 = `UPDATE sendrequest set status=3 WHERE book_id=${book_id} and emp_id=${emp_id} AND request_date='${request_date}'`;
+          const result320 = await req.Conn.execute(query420);
+          res.status(200).json({
+            success: true,
+            msg: "Book Issued Successfully",
+          });
+          if (req.Conn) {
+            await req.Conn.close();
+          }
+        } else {
+          res.status(200).json({
+            success1: true,
+          });
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
+Create_Route.post(
+  "/additionalTimeRequest",
+  Connection,
+  async function (req, res, next) {
+    const { id, newrelease_date, prevous_release_date, request_date } =
+      req.body;
+    const query = `INSERT INTO bookrenew(bookrent_id,request_date,pre_release_date,new_release_date,status) VALUES('${id}','${request_date}','${prevous_release_date}','${newrelease_date}','${0}')`;
+    try {
+      let result = await req.Conn.execute(query);
+      res.status(200).json({
+        success: true,
+        msg: "Book Renew Request Sent Successfully",
+      });
+      if (req.Conn) {
+        // conn assignment worked, need to close
+        console.log("close");
+        await req.Conn.close();
+      }
+    } catch (errors) {
+      console.log(errors);
+      console.log("Query not executed");
+    }
+  }
+);
 module.exports = Create_Route;

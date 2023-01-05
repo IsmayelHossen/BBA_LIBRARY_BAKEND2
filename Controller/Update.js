@@ -6,6 +6,7 @@ const fs = require("fs");
 const sharp = require("sharp");
 
 const DBQuery = require("../Database/Query_Builder");
+const Connection = require("../Database/Connection");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -24,60 +25,88 @@ var upload = multer({ storage: storage });
 // const uploadSingleImage = upload.array("documents");
 // const uploadFile_books = upload.array("image");
 
-Update_Route.put("/publisher/:id", async function (req, res) {
+Update_Route.put("/publisher/:id", Connection, async function (req, res) {
   const id = req.params.id;
   const publisher_name = req.body.publisher_name.replace(/'/g, "''");
   const query = `UPDATE publishers SET publisher_name='${publisher_name}' WHERE ID=${id} `;
-  const result = DBQuery(query);
+  let result = await req.Conn.execute(query);
   res.status(200).json({
     success: true,
-    data: result,
+    data: result.rows,
   });
+  if (req.Conn) {
+    await req.Conn.close();
+  }
 });
-Update_Route.put("/category/:id", async function (req, res) {
+Update_Route.put("/category/:id", Connection, async function (req, res) {
   const id = req.params.id;
   const category_name = req.body.category_name.replace(/'/g, "''");
   const query = `UPDATE categories SET category_name='${category_name}' WHERE ID=${id} `;
-  const result = DBQuery(query);
+  let result = await req.Conn.execute(query);
   res.status(200).json({
     success: true,
-    data: result,
+    data: result.rows,
   });
-});
-//sentrequest_reply
-Update_Route.put("/sentrequest_reply/:emp_id", async function (req, res) {
-  const emp_id = req.params.emp_id;
-  const { book_id, request_date, declined, request_status, id } = req.body;
-  const query = `UPDATE sendrequest SET status='${request_status}',DECLINED_MSG='${declined}' WHERE  book_id=${book_id}
-  AND emp_id='${emp_id}' AND REQUEST_DATE='${request_date}' AND id='${id}' `;
-  const result = await DBQuery(query);
-  res.status(200).json({
-    success: true,
-    data: result,
-  });
-});
-//IssuebookReturn
-Update_Route.put("/IssuebookReturn/:rent_id", async function (req, res) {
-  const rent_id = req.params.rent_id;
-  const { book_id, receive_date, remark } = req.body;
-  const query = `UPDATE bookrent SET RECEIVE_DATE='${receive_date}',status='Release',remark1='${remark}' WHERE ID='${rent_id}' `;
-  const result = DBQuery(query);
-  if (result) {
-    const query2 = `select*from books where book_num=${book_id}`;
-    const result2 = await DBQuery(query2);
-
-    var new_available = result2[0].AVAILABLE_COPY + 1;
-
-    const query3 = `update books set AVAILABLE_COPY=${new_available} WHERE  book_num=${book_id}`;
-    const result3 = await DBQuery(query3);
-    res.status(200).json({
-      success: true,
-      data: result,
-    });
+  if (req.Conn) {
+    await req.Conn.close();
   }
 });
+//sentrequest_reply
+Update_Route.put(
+  "/sentrequest_reply/:emp_id",
+  Connection,
+  async function (req, res) {
+    const emp_id = req.params.emp_id;
+    const { book_id, request_date, declined, request_status, id } = req.body;
+    const query = `UPDATE sendrequest SET status='${request_status}',DECLINED_MSG='${declined}' WHERE  book_id=${book_id}
+  AND emp_id='${emp_id}' AND REQUEST_DATE='${request_date}' AND id='${id}' `;
+    let result = await req.Conn.execute(query);
+    res.status(200).json({
+      success: true,
+      data: result.rows,
+    });
+    if (req.Conn) {
+      await req.Conn.close();
+    }
+  }
+);
+//IssuebookReturn
+Update_Route.put(
+  "/IssuebookReturn/:rent_id",
+  Connection,
+  async function (req, res) {
+    const rent_id = req.params.rent_id;
+    const { book_id, receive_date, remark } = req.body;
+    const query = `UPDATE bookrent SET RECEIVE_DATE='${receive_date}',status='Release',remark1='${remark}' WHERE ID='${rent_id}' `;
+
+    try {
+      let result = await req.Conn.execute(query);
+      if (result.rows) {
+        const query2 = `select*from books where book_num=${book_id}`;
+        let execute = await req.Conn.execute(query2);
+        const result2 = execute.rows;
+
+        var new_available = result2[0].AVAILABLE_COPY + 1;
+
+        const query3 = `update books set AVAILABLE_COPY=${new_available} WHERE  book_num=${book_id}`;
+        let result3 = await req.Conn.execute(query3);
+        res.status(200).json({
+          success: true,
+          data: result3,
+          msg: "Data Updated",
+        });
+      }
+      if (req.Conn) {
+        await req.Conn.close();
+      }
+    } catch (errors) {
+      console.log(errors);
+      console.log("Query not executed");
+    }
+  }
+);
 //IssuebookRenew
-Update_Route.put("/IssuebookRenew/:id", async function (req, res) {
+Update_Route.put("/IssuebookRenew/:id", Connection, async function (req, res) {
   const id = req.params.id;
   const {
     previous_release_date,
@@ -88,22 +117,41 @@ Update_Route.put("/IssuebookRenew/:id", async function (req, res) {
   } = req.body;
   if (request_status == 1) {
     const query = `UPDATE bookrenew SET NEW_RELEASE_DATE='${new_release_date}',status='${request_status}' WHERE  id=${id} `;
-    const result = DBQuery(query);
-    if (result) {
-      const query3 = `update bookrent set release_date='${new_release_date}' WHERE  id='${bookrent_id}'`;
-      const result3 = await DBQuery(query3);
-      res.status(200).json({
-        success: true,
-        data: result3,
-      });
+
+    try {
+      let result = await req.Conn.execute(query);
+      if (result.rows) {
+        const query3 = `update bookrent set release_date='${new_release_date}' WHERE  id='${bookrent_id}'`;
+        let result3 = await req.Conn.execute(query3);
+        res.status(200).json({
+          success: true,
+          data: result3,
+          msg: "Issue Book Renew Successfully",
+        });
+        if (req.Conn) {
+          await req.Conn.close();
+        }
+      }
+    } catch (errors) {
+      console.log(errors);
+      console.log("Query not executed");
     }
   } else {
     const query = `UPDATE bookrenew SET NEW_RELEASE_DATE='${new_release_date}',status='${request_status}',remark3='${dclined}' WHERE  id=${id} `;
-    const result = DBQuery(query);
-    res.status(200).json({
-      success: true,
-      data: result,
-    });
+    try {
+      let result3 = await req.Conn.execute(query);
+      res.status(200).json({
+        success: true,
+        data: result3,
+        msg: "Issue Book Renew Successfully",
+      });
+      if (req.Conn) {
+        await req.Conn.close();
+      }
+    } catch (error) {
+      console.log(error);
+      console.log("Query not executed");
+    }
   }
 });
 
@@ -188,7 +236,17 @@ Update_Route.put(
   ,PAGE_NUMBER='${PAGE_NUMBER}', AUTHOR='${AUTHOR}',DESK_NUMBER='${DESK_NUMBER}',DESK_FLOOR=${desk_floor}
    , book_num=${book_num},title='${TITLE}',VOLUME_EDITION='${VOLUME_EDITION}',REMARK='${REMARK}',SOURCE_DATE='${SOURCE_DATE}',PUBLICATION_DATE='${PUBLICATION_DATE}',entry_date='${ENTRY_DATE}',
    image='${imageName}',seq_number='${SEQ_NUMBER}',OLD_BOOK_NO='${OLD_BOOK_NO}'  where id=${id} `;
-    const result2 = await DBQuery(query);
+    try {
+      let result3 = await req.Conn.execute(query);
+
+      if (req.Conn) {
+        console.log("book with image");
+        await req.Conn.close();
+      }
+    } catch (error) {
+      console.log(error);
+      console.log("Query not executed");
+    }
     if (delete_image != null) {
       const filepath = `public/uploadDoc/${delete_image}`;
       await fs.unlink(filepath, () => {
@@ -207,7 +265,7 @@ Update_Route.put(
   }
 );
 //update book without image
-Update_Route.put("/bookUpdate/:id", async function (req, res) {
+Update_Route.put("/bookUpdate/:id", Connection, async function (req, res) {
   // const id = req.params.id;
 
   const { id } = req.params;
@@ -267,7 +325,17 @@ Update_Route.put("/bookUpdate/:id", async function (req, res) {
   AVAILABLE_COPY='${AVAILABLE_COPY}',PAGE_NUMBER='${PAGE_NUMBER}', AUTHOR='${AUTHOR}',DESK_NUMBER='${DESK_NUMBER}',DESK_FLOOR='${desk_floor}'
    , book_num='${book_num}',title='${TITLE}',VOLUME_EDITION='${VOLUME_EDITION}',REMARK='${REMARK}',SOURCE_DATE='${SOURCE_DATE}',PUBLICATION_DATE='${PUBLICATION_DATE}',entry_date='${ENTRY_DATE}'
    ,seq_number='${SEQ_NUMBER}',OLD_BOOK_NO='${OLD_BOOK_NO}' where id=${id} `;
-  const result2 = await DBQuery(query);
+  try {
+    let result3 = await req.Conn.execute(query);
+
+    if (req.Conn) {
+      await req.Conn.close();
+      console.log("book update");
+    }
+  } catch (error) {
+    console.log(error);
+    console.log("Query not executed");
+  }
 
   res.status(200).json({
     success: true,
