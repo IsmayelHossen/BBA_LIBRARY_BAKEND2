@@ -43,6 +43,7 @@ Update_Route.put("/category/:id", Connection, async function (req, res) {
   const category_name = req.body.category_name.replace(/'/g, "''");
   const query = `UPDATE categories SET category_name='${category_name}' WHERE ID=${id} `;
   let result = await req.Conn.execute(query);
+
   res.status(200).json({
     success: true,
     data: result.rows,
@@ -116,11 +117,10 @@ Update_Route.put("/IssuebookRenew/:id", Connection, async function (req, res) {
     bookrent_id,
   } = req.body;
   if (request_status == 1) {
-    const query = `UPDATE bookrenew SET NEW_RELEASE_DATE='${new_release_date}',status='${request_status}' WHERE  id=${id} `;
-
     try {
+      const query = `UPDATE bookrenew SET NEW_RELEASE_DATE='${new_release_date}',status='${request_status}' WHERE  id=${id} `;
       let result = await req.Conn.execute(query);
-      if (result.rows) {
+      if (result.rowsAffected) {
         const query3 = `update bookrent set release_date='${new_release_date}' WHERE  id='${bookrent_id}'`;
         let result3 = await req.Conn.execute(query3);
         res.status(200).json({
