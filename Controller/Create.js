@@ -17,17 +17,18 @@ const storage = multer.diskStorage({
     cb(null, "./public/uploadDoc/");
   },
 
-  filename: function (req, file, cb) {
-    cb(
-      null,
-      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
-    );
+  filename: (req, file, cb) => {
+    const fileext = path.extname(file.originalname);
+    const filename =
+      file.originalname.replace(fileext, "_").toLowerCase() +
+      new Date().getTime();
+    cb(null, filename + fileext);
   },
 });
 
 var upload = multer({ storage: storage });
 // const uploadSingleImage = upload.array("documents");
-// const uploadFile_books = upload.single("image");
+const uploadFile_books = upload.single("image");
 
 Create_Route.post("/publisher", Connection, async function (req, res, next) {
   console.log(req.body);
@@ -150,122 +151,103 @@ Create_Route.post("/book_add", Connection, async function (req, res, next) {
 
 Create_Route.post(
   "/book_add_withImage",
-  upload.single("image"),
   Connection,
+
   async function (req, res, next) {
-    // uploadFile_books(req, res, async function (err) {
-    //   if (err) {
-    //     console.log(err);
-    //     return res.status(200).send({ status: 400, message: err.message });
-    //   }
-    const { filename: image } = req.file;
-    const imageName =
-      req.file.fieldname +
-      "-" +
-      Date.now() +
-      path.extname(req.file.originalname);
-    await sharp(req.file.path)
-      .resize(150, 150)
-
-      .jpeg({ quality: 90 })
-
-      //.toFile(path.resolve(req.file.destination, "resized", image));
-      .toFile(`./public/uploadDoc/${imageName}`);
-
-    await fs.unlink(req.file.path, () => {
-      // res.status(200).json({
-      //   success: true,
-      //   message: "Deleted data suceessfully",
-      // });
-    });
-    // fs.unlink(req.file.path);
-
-    const {
-      entry_date,
-      publication_date,
-      desk_number,
-      sequence_num,
-      cost,
-      old_book_num,
-    } = req.body;
-    const title = req.body.title.replace(/'/g, "''");
-    const author = req.body.author.replace(/'/g, "''");
-    const source_date = req.body.source_date.replace(/'/g, "''");
-    const volume_edition = req.body.volume_edition.replace(/'/g, "''");
-    const remark = req.body.remark.replace(/'/g, "''");
-    const desk_floor = Number(req.body.desk_floor);
-    const book_num = Number(req.body.book_num);
-    const category_name = Number(req.body.category_name);
-    const publisher_name = Number(req.body.publisher_name);
-    const book_copy = Number(req.body.book_copy);
-
-    const page_number = Number(req.body.page_number);
-
-    // const cost =
-    //   req.body.cost == "NaN"
-    //     ? 0
-    //     : req.body.cost == "null"
-    //     ? 0
-    //     : Number(req.body.cost);
-    const call_no =
-      req.body.call_no == "NaN"
-        ? 0
-        : req.body.call_no == "null"
-        ? 0
-        : Number(req.body.call_no);
-    //check unique book number
-    console.log(req.body);
-    console.log("cost", cost);
-    console.log("call_no", call_no);
-
-    const querycheck = `SELECT*FROM books where book_num=${book_num}`;
-    let result = await req.Conn.execute(querycheck);
-    const querycheck_result = result.rows;
-
-    if (
-      querycheck_result.length > 0 &&
-      querycheck_result[0].BOOK_NUM == book_num
-    ) {
-      res.status(200).json({
-        success: "NotUnique",
-        bookNum: book_num,
-      });
-      if (req.Conn) {
-        await req.Conn.close();
+    uploadFile_books(req, res, async function (err) {
+      if (err) {
+        console.log(err);
+        return res.status(200).send({ status: 400, message: err.message });
       }
-    } else {
-      const query = `INSERT INTO  books(category_id,
+
+      console.log(req.file);
+      const imageName = req.file.filename;
+      console.log(imageName);
+      const {
+        entry_date,
+        publication_date,
+        desk_number,
+        sequence_num,
+        cost,
+        old_book_num,
+      } = req.body;
+      const title = req.body.title.replace(/'/g, "''");
+      const author = req.body.author.replace(/'/g, "''");
+      const source_date = req.body.source_date.replace(/'/g, "''");
+      const volume_edition = req.body.volume_edition.replace(/'/g, "''");
+      const remark = req.body.remark.replace(/'/g, "''");
+      const desk_floor = Number(req.body.desk_floor);
+      const book_num = Number(req.body.book_num);
+      const category_name = Number(req.body.category_name);
+      const publisher_name = Number(req.body.publisher_name);
+      const book_copy = Number(req.body.book_copy);
+
+      const page_number = Number(req.body.page_number);
+
+      // const cost =
+      //   req.body.cost == "NaN"
+      //     ? 0
+      //     : req.body.cost == "null"
+      //     ? 0
+      //     : Number(req.body.cost);
+      const call_no =
+        req.body.call_no == "NaN"
+          ? 0
+          : req.body.call_no == "null"
+          ? 0
+          : Number(req.body.call_no);
+      //check unique book number
+      console.log(req.body);
+      console.log("cost", cost);
+      console.log("call_no", call_no);
+
+      const querycheck = `SELECT*FROM books where book_num=${book_num}`;
+      let result = await req.Conn.execute(querycheck);
+      const querycheck_result = result.rows;
+
+      if (
+        querycheck_result.length > 0 &&
+        querycheck_result[0].BOOK_NUM == book_num
+      ) {
+        res.status(200).json({
+          success: "NotUnique",
+          bookNum: book_num,
+        });
+        if (req.Conn) {
+          await req.Conn.close();
+        }
+      } else {
+        const query = `INSERT INTO  books(category_id,
         publisher_id,entry_date,book_num,title,author,volume_edition,publication_date,page_number,cost,source_date,
         desk_number,desk_floor,number_of_copy,available_copy,call_no,remark,image,seq_number,OLD_BOOK_NO)
         VALUES('${category_name}','${publisher_name}','${entry_date}','${book_num}','${title}','${author}',
         '${volume_edition}','${publication_date}','${page_number}','${cost}','${source_date}','${desk_number}','${desk_floor}',
         '${book_copy}','${book_copy}','${call_no}','${remark}','${imageName}','${sequence_num}','${old_book_num}')`;
-      try {
-        let result = await req.Conn.execute(query);
-        res.status(200).json({
-          success: true,
-          msg: "Book Added Successfully",
-        });
-
-        if (req.Conn) {
-          await req.Conn.close();
-        }
-      } catch (errors) {
-        console.log(errors);
-        console.log("Query not executed");
-        if (errors.errorNum == 1756) {
+        try {
+          let result = await req.Conn.execute(query);
           res.status(200).json({
-            success: false,
-            msg: "Please insert proper value",
+            success: true,
+            msg: "Book Added Successfully",
           });
-        }
-        if (req.Conn) {
-          await req.Conn.close();
+
+          if (req.Conn) {
+            await req.Conn.close();
+          }
+        } catch (errors) {
+          console.log(errors);
+          console.log("Query not executed");
+          if (errors.errorNum == 1756) {
+            res.status(200).json({
+              success: false,
+              msg: "Please insert proper value",
+            });
+          }
+          if (req.Conn) {
+            await req.Conn.close();
+          }
         }
       }
-    }
-
-    // });
+    });
   }
 );
 Create_Route.post("/requestSend", Connection, async function (req, res, next) {

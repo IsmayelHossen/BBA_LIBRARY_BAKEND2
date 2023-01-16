@@ -334,7 +334,7 @@ View_Route.get(
     if (req.params.filterType == "all") {
       const query = `SELECT categories.category_name,publishers.publisher_name,books.* from books
   join categories on categories.id=books.category_id
-  join publishers on publishers.id=books.publisher_id order by books.id asc
+  join publishers on publishers.id=books.publisher_id order by books.book_num asc
   `;
       let result = await req.Conn.execute(query);
       res.status(200).json({
@@ -614,4 +614,31 @@ View_Route.get(
     }
   }
 );
+//getSmsSettingsData
+View_Route.get("/getSmsSettingsData/", Connection, async function (req, res) {
+  const { book_id } = req.params;
+  const query = `Select*from library_sms `;
+  let result = await req.Conn.execute(query);
+  res.status(200).json({
+    success: true,
+    data: result.rows,
+  });
+  if (req.Conn) {
+    await req.Conn.close();
+  }
+});
+//maxbooklimit
+View_Route.get("/maxbooklimit/", Connection, async function (req, res) {
+  const { book_id } = req.params;
+  const query = `Select*from booklimit `;
+  let result = await req.Conn.execute(query);
+  res.status(200).json({
+    success: true,
+    data: result.rows,
+  });
+  if (req.Conn) {
+    await req.Conn.close();
+  }
+});
+
 module.exports = View_Route;

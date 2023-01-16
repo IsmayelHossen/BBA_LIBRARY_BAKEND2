@@ -50,28 +50,55 @@ const Connection = require("../Database/Connection");
 
 Delete_Route.delete("/publisher/:id", Connection, async function (req, res) {
   const id = req.params.id;
-  const query = `delete from publishers where id='${id}'`;
 
-  let result = await req.Conn.execute(query);
-  res.status(200).json({
-    success: true,
-    msg: "Deleted data suceessfully",
-  });
-  if (req.Conn) {
-    await req.Conn.close();
+  try {
+    const query = `delete from publishers where id='${id}'`;
+
+    let result = await req.Conn.execute(query);
+    res.status(200).json({
+      success: true,
+      msg: "Deleted data suceessfully",
+    });
+    if (req.Conn) {
+      await req.Conn.close();
+    }
+  } catch (error) {
+    if (error.errorNum == 2292) {
+      res.status(200).json({
+        childDataFoundError: true,
+        message: "At first delete child record",
+      });
+    }
+    if (req.Conn) {
+      console.log(error.errorNum);
+      await req.Conn.close();
+    }
   }
 });
 
 Delete_Route.delete("/category/:id", Connection, async function (req, res) {
   const id = req.params.id;
-  const query = `delete from categories where id='${id}'`;
-  let result = await req.Conn.execute(query);
-  res.status(200).json({
-    success: true,
-    msg: "Deleted data suceessfully",
-  });
-  if (req.Conn) {
-    await req.Conn.close();
+  try {
+    const query = `delete from categories where id='${id}'`;
+    let result = await req.Conn.execute(query);
+    res.status(200).json({
+      success: true,
+      msg: "Deleted data suceessfully",
+    });
+    if (req.Conn) {
+      await req.Conn.close();
+    }
+  } catch (error) {
+    if (error.errorNum == 2292) {
+      res.status(200).json({
+        childDataFoundError: true,
+        message: "At first delete child record",
+      });
+    }
+    if (req.Conn) {
+      console.log(error.errorNum);
+      await req.Conn.close();
+    }
   }
 });
 Delete_Route.delete(

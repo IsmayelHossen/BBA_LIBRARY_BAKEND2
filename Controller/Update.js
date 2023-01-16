@@ -13,17 +13,18 @@ const storage = multer.diskStorage({
     cb(null, "./public/uploadDoc/");
   },
 
-  filename: function (req, file, cb) {
-    cb(
-      null,
-      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
-    );
+  filename: (req, file, cb) => {
+    const fileext = path.extname(file.originalname);
+    const filename =
+      file.originalname.replace(fileext, "_").toLowerCase() +
+      new Date().getTime();
+    cb(null, filename + fileext);
   },
 });
 
 var upload = multer({ storage: storage });
 // const uploadSingleImage = upload.array("documents");
-// const uploadFile_books = upload.array("image");
+const uploadFile_books = upload.single("image");
 
 Update_Route.put("/publisher/:id", Connection, async function (req, res) {
   const id = req.params.id;
@@ -38,6 +39,43 @@ Update_Route.put("/publisher/:id", Connection, async function (req, res) {
     await req.Conn.close();
   }
 });
+//smsSettings
+Update_Route.put("/smsSettings/:id", Connection, async function (req, res) {
+  const id = req.params.id;
+  const {
+    USER_REQUESTSMS,
+    LIB_GETREQUESTSMS,
+    USER_REQUESTACCEPTSMS,
+    USER_BOOKRETURNSMS,
+  } = req.body;
+  const query = `UPDATE library_sms SET USER_REQUESTSMS='${USER_REQUESTSMS}',LIB_GETREQUESTSMS='${LIB_GETREQUESTSMS}',USER_REQUESTACCEPTSMS='${USER_REQUESTACCEPTSMS}',
+  USER_BOOKRETURNSMS='${USER_BOOKRETURNSMS}' WHERE ID=${id} `;
+  let result = await req.Conn.execute(query);
+
+  res.status(200).json({
+    success: true,
+    data: result.rows,
+  });
+  if (req.Conn) {
+    await req.Conn.close();
+  }
+});
+// maxbooklimit
+Update_Route.put("/maxbooklimit/:id", Connection, async function (req, res) {
+  const id = req.params.id;
+  const { MAX_BOOK_LIMIT } = req.body;
+  const query = `UPDATE booklimit SET MAX_BOOK_LIMIT='${MAX_BOOK_LIMIT}' WHERE ID=${id} `;
+  let result = await req.Conn.execute(query);
+
+  res.status(200).json({
+    success: true,
+    data: result.rows,
+  });
+  if (req.Conn) {
+    await req.Conn.close();
+  }
+});
+
 Update_Route.put("/category/:id", Connection, async function (req, res) {
   const id = req.params.id;
   const category_name = req.body.category_name.replace(/'/g, "''");
@@ -77,12 +115,16 @@ Update_Route.put(
   Connection,
   async function (req, res) {
     const rent_id = req.params.rent_id;
+    console.log(rent_id);
+    console.log(req.body);
     const { book_id, receive_date, remark } = req.body;
     const query = `UPDATE bookrent SET RECEIVE_DATE='${receive_date}',status='Release',remark1='${remark}' WHERE ID='${rent_id}' `;
 
     try {
       let result = await req.Conn.execute(query);
-      if (result.rows) {
+
+      if (result.rowsAffected) {
+        console.log(result.rowsAffected);
         const query2 = `select*from books where book_num=${book_id}`;
         let execute = await req.Conn.execute(query2);
         const result2 = execute.rows;
@@ -91,6 +133,7 @@ Update_Route.put(
 
         const query3 = `update books set AVAILABLE_COPY=${new_available} WHERE  book_num=${book_id}`;
         let result3 = await req.Conn.execute(query3);
+        console.log("put");
         res.status(200).json({
           success: true,
           data: result3,
@@ -159,109 +202,94 @@ Update_Route.put("/IssuebookRenew/:id", Connection, async function (req, res) {
 
 Update_Route.put(
   "/Updatebook_withImage/:id/:delete_image",
-  upload.single("image"),
+  Connection,
   async function (req, res) {
-    const { id, delete_image } = req.params;
-    const { filename: image } = req.file;
-    const imageName =
-      req.file.fieldname +
-      "-" +
-      Date.now() +
-      path.extname(req.file.originalname);
-    await sharp(req.file.path)
-      .resize(150, 100)
+    uploadFile_books(req, res, async function (err) {
+      if (err) {
+        console.log(err);
+        return res.status(200).send({ status: 400, message: err.message });
+      }
+      const { id, delete_image } = req.params;
+      const { filename: image } = req.file;
+      const imageName = req.file.filename;
+      console.log(req.file);
 
-      .jpeg({ quality: 90 })
+      const {
+        ENTRY_DATE,
+        PUBLICATION_DATE,
+        DESK_NUMBER,
+        DESK_FLOOR,
+        SEQ_NUMBER,
+        COST,
+        OLD_BOOK_NO,
+      } = req.body;
 
-      //.toFile(path.resolve(req.file.destination, "resized", image));
-      .toFile(`./public/uploadDoc/${imageName}`);
-    fs.unlinkSync(req.file.path);
+      const TITLE =
+        req.body.TITLE != null
+          ? req.body.TITLE.replace(/'/g, "''")
+          : req.body.TITLE;
+      const AUTHOR =
+        req.body.AUTHOR != null
+          ? req.body.AUTHOR.replace(/'/g, "''")
+          : req.body.AUTHOR;
+      const SOURCE_DATE =
+        req.body.SOURCE_DATE != null
+          ? req.body.SOURCE_DATE.replace(/'/g, "''")
+          : req.body.SOURCE_DATE;
+      const VOLUME_EDITION =
+        req.body.VOLUME_EDITION != null
+          ? req.body.VOLUME_EDITION.replace(/'/g, "''")
+          : req.body.VOLUME_EDITION;
+      const REMARK =
+        req.body.REMARK != null
+          ? req.body.REMARK.replace(/'/g, "''")
+          : req.body.REMARK;
+      const desk_floor = Number(req.body.DESK_FLOOR);
+      const book_num = Number(req.body.BOOK_NUM);
+      const CATEGORY_ID = Number(req.body.CATEGORY_ID);
+      const PUBLISHER_ID = Number(req.body.PUBLISHER_ID);
+      const NUMBER_OF_COPY = Number(req.body.NUMBER_OF_COPY);
+      const AVAILABLE_COPY = Number(req.body.AVAILABLE_COPY);
 
-    const {
-      ENTRY_DATE,
-      PUBLICATION_DATE,
-      DESK_NUMBER,
-      DESK_FLOOR,
-      SEQ_NUMBER,
-      COST,
-      OLD_BOOK_NO,
-    } = req.body;
-    // const TITLE = req.body.TITLE.replace(/'/g, "''");
-    // const AUTHOR = req.body.AUTHOR.replace(/'/g, "''");
-    // const SOURCE_DATE = req.body.SOURCE_DATE.replace(/'/g, "''");
-    // const VOLUME_EDITION = req.body.VOLUME_EDITION.replace(/'/g, "''");
-    // const REMARK = req.body.REMARK.replace(/'/g, "''");
-    const TITLE =
-      req.body.TITLE != null
-        ? req.body.TITLE.replace(/'/g, "''")
-        : req.body.TITLE;
-    const AUTHOR =
-      req.body.AUTHOR != null
-        ? req.body.AUTHOR.replace(/'/g, "''")
-        : req.body.AUTHOR;
-    const SOURCE_DATE =
-      req.body.SOURCE_DATE != null
-        ? req.body.SOURCE_DATE.replace(/'/g, "''")
-        : req.body.SOURCE_DATE;
-    const VOLUME_EDITION =
-      req.body.VOLUME_EDITION != null
-        ? req.body.VOLUME_EDITION.replace(/'/g, "''")
-        : req.body.VOLUME_EDITION;
-    const REMARK =
-      req.body.REMARK != null
-        ? req.body.REMARK.replace(/'/g, "''")
-        : req.body.REMARK;
-    const desk_floor = Number(req.body.DESK_FLOOR);
-    const book_num = Number(req.body.BOOK_NUM);
-    const CATEGORY_ID = Number(req.body.CATEGORY_ID);
-    const PUBLISHER_ID = Number(req.body.PUBLISHER_ID);
-    const NUMBER_OF_COPY = Number(req.body.NUMBER_OF_COPY);
-    const AVAILABLE_COPY = Number(req.body.AVAILABLE_COPY);
+      const PAGE_NUMBER = Number(req.body.PAGE_NUMBER);
 
-    const PAGE_NUMBER = Number(req.body.PAGE_NUMBER);
-    // const COST =
-    //   req.body.COST == "NaN"
-    //     ? 0
-    //     : req.body.COST == "null"
-    //     ? 0
-    //     : Number(req.body.COST);
-    const CALL_NO =
-      req.body.CALL_NO == "NaN"
-        ? 0
-        : req.body.CALL_NO == "null"
-        ? 0
-        : Number(req.body.CALL_NO);
-    // const imagename = req.files[0].filename;
-    const query = `UPDATE books SET CALL_NO='${CALL_NO}',COST='${COST}', CATEGORY_ID='${CATEGORY_ID}',PUBLISHER_ID='${PUBLISHER_ID}',NUMBER_OF_COPY='${NUMBER_OF_COPY}'
+      const CALL_NO =
+        req.body.CALL_NO == "NaN"
+          ? 0
+          : req.body.CALL_NO == "null"
+          ? 0
+          : Number(req.body.CALL_NO);
+      // const imagename = req.files[0].filename;
+      const query = `UPDATE books SET CALL_NO='${CALL_NO}',COST='${COST}', CATEGORY_ID='${CATEGORY_ID}',PUBLISHER_ID='${PUBLISHER_ID}',NUMBER_OF_COPY='${NUMBER_OF_COPY}'
   ,PAGE_NUMBER='${PAGE_NUMBER}', AUTHOR='${AUTHOR}',DESK_NUMBER='${DESK_NUMBER}',DESK_FLOOR=${desk_floor}
    , book_num=${book_num},title='${TITLE}',VOLUME_EDITION='${VOLUME_EDITION}',REMARK='${REMARK}',SOURCE_DATE='${SOURCE_DATE}',PUBLICATION_DATE='${PUBLICATION_DATE}',entry_date='${ENTRY_DATE}',
    image='${imageName}',seq_number='${SEQ_NUMBER}',OLD_BOOK_NO='${OLD_BOOK_NO}'  where id=${id} `;
-    try {
-      let result3 = await req.Conn.execute(query);
+      try {
+        let result3 = await req.Conn.execute(query);
 
-      if (req.Conn) {
-        console.log("book with image");
-        await req.Conn.close();
+        if (req.Conn) {
+          console.log("book with image");
+          await req.Conn.close();
+        }
+      } catch (error) {
+        console.log(error);
+        console.log("Query not executed");
       }
-    } catch (error) {
-      console.log(error);
-      console.log("Query not executed");
-    }
-    if (delete_image != null) {
-      const filepath = `public/uploadDoc/${delete_image}`;
-      await fs.unlink(filepath, () => {
+      if (delete_image != null) {
+        const filepath = `public/uploadDoc/${delete_image}`;
+        await fs.unlink(filepath, () => {
+          res.status(200).json({
+            success: true,
+            message: "Deleted data suceessfully",
+          });
+        });
+      } else {
         res.status(200).json({
           success: true,
           message: "Deleted data suceessfully",
         });
-      });
-    } else {
-      res.status(200).json({
-        success: true,
-        message: "Deleted data suceessfully",
-      });
-    }
-    // });
+      }
+    });
   }
 );
 //update book without image
